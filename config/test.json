@@ -1,0 +1,4 @@
+{
+  "private_key": "fatima",
+  "db": "mongodb://localhost/educloud_test"
+}

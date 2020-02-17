@@ -1,0 +1,42 @@
+const express = require("express");
+const error = require("../middleware/error");
+const admin_add_teacher = require("../routes/admin/add_teacher");
+const admin_auth = require("../routes/admin/auth");
+const teacher_auth = require("../routes/teacher/auth");
+const teachers_course = require("../routes/teacher/courses");
+const teacher_information = require("../routes/teacher/profile");
+const teacher_add_student = require("../routes/teacher/students");
+const teacher_students_of_subject = require("../routes/teacher/student_of_subject");
+const student_auth = require("../routes/students/auth");
+const student_profile = require("../routes/students/profile");
+const student_subjects = require("../routes/students/subjects");
+const schedule_exam = require("../routes/exams/schedule_exams");
+const student_exams = require("../routes/students/my_exams");
+const post_mark = require("../routes/teacher/post_mark");
+const posted_exams = require("../routes/teacher/posted_exams");
+const student_view_mark = require("../routes/students/my_mark");
+const event = require("../routes/admin/events");
+const add_class = require("../routes/admin/add_class");
+
+module.exports = function(app) {
+  app.use(express.json());
+  app.use("/api/admin/add/teacher", admin_add_teacher);
+  app.use("/api/admin/auth", admin_auth);
+  app.use("/api/add/class", add_class);
+  app.use("/api/teacher/info", teacher_information);
+  app.use("/api/teacher/auth", teacher_auth);
+  app.use("/api/teacher/add/course", teachers_course);
+  app.use("/api/teacher/student", teacher_add_student);
+  app.use("/api/teacher/students/subject", teacher_students_of_subject);
+  app.use("/api/student/auth", student_auth);
+  app.use("/api/student/profile", student_profile);
+  app.use("/api/students/subjects", student_subjects);
+  app.use("/api/schedule/exams", schedule_exam);
+  app.use("/api/student/my-exams", student_exams);
+  app.use("/api/teacher/post-mark", post_mark);
+  app.use("/api/teacher/posted-exam", posted_exams);
+  app.use("/api/student/my-mark", student_view_mark);
+  app.use("/api/admin/event", event);
+
+  app.use(error);
+};
