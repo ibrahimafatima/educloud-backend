@@ -1,5 +1,6 @@
 const winston = require("winston");
 require("winston-mongodb");
+const config = require("config");
 
 const logger = winston.createLogger({
   transports: [
@@ -7,7 +8,7 @@ const logger = winston.createLogger({
     new winston.transports.File({ filename: "error.log", level: "error" }),
     new winston.transports.File({ filename: "combined.log" }),
     new winston.transports.MongoDB({
-      db: "mongodb://localhost/educloud",
+      db: config.get("db"),
       level: "info"
     })
   ]
