@@ -24,8 +24,7 @@ const studentSchema = new mongoose.Schema({
   username: {
     type: String,
     minlength: 3,
-    maxlength: 12,
-    required: true
+    maxlength: 12
   },
   first_name: {
     type: String,
