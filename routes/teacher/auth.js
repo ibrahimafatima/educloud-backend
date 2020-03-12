@@ -7,6 +7,7 @@ const {
 
 const router = express.Router();
 
+//-------TEACHER RGISTER SEND ALREADY IN USE IF TEAHCER IS REGISTERED
 router.post("/register", async (req, res) => {
   const { error } = ValidateTeacherAuth(req.body);
   if (error) return res.status(400).send(error.details[0].message);

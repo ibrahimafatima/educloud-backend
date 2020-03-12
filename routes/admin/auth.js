@@ -40,7 +40,7 @@ router.post("/register", async (req, res) => {
   const newAdmin = new AdminAuth({
     schoolSecretKey: hashedSecretKey,
     username: req.body.username,
-    password: hashedPassword,   
+    password: hashedPassword,
     isAdmin: req.body.isAdmin
   });
   await newAdmin.save();

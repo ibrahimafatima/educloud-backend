@@ -21,6 +21,12 @@ const studentSchema = new mongoose.Schema({
     type: String,
     minlength: 8
   },
+  username: {
+    type: String,
+    minlength: 3,
+    maxlength: 12,
+    required: true
+  },
   first_name: {
     type: String,
     minlength: 3,
@@ -61,6 +67,7 @@ studentSchema.methods.generateStudentToken = function() {
     {
       _id: this._id,
       registration_number: this.registration_number,
+      username: this.username,
       class_name: this.class_name,
       isStudent: this.isStudent
     },
@@ -74,6 +81,10 @@ const studentDetails = mongoose.model("students", studentSchema);
 function validateStudentDetails(addStudent) {
   const schema = Joi.object({
     registration_number: Joi.string().required(),
+    username: Joi.string()
+      .min(3)
+      .max(12)
+      .required(),
     class_name: Joi.string()
       .lowercase()
       .min(3)
@@ -92,9 +103,14 @@ function validateStudentDetails(addStudent) {
 function validateStudentAuth(student) {
   const schema = Joi.object({
     registration_number: Joi.string().required(),
+    username: Joi.string()
+      .min(3)
+      .max(12)
+      .required(),
     class_name: Joi.string()
       .min(3)
-      .max(8),
+      .max(8)
+      .required(),
     password: Joi.string()
       .min(8)
       .required(),

@@ -5,7 +5,7 @@ const { Event, ValidateEvent } = require("../../model/admin/events");
 
 const router = express.Router();
 
-router.post("/", [isAuth, isAdmin], async (req, res) => {
+router.post("/", async (req, res) => {
   const { error } = ValidateEvent(req.body);
   if (error) return res.status(400).send(error.details[0].message);
   const event = new Event({
