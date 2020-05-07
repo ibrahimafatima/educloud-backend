@@ -3,7 +3,7 @@ mongoose.set("useCreateIndex", true);
 const Joi = require("@hapi/joi");
 
 const classesSchema = new mongoose.Schema({
-  name: {
+  className: {
     type: String,
     unique: true,
     required: true
@@ -21,6 +21,17 @@ const classesSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  addedBy: {
+    type: String,
+    required: true
+  },
+  lastUpdatedBy: {
+    type: String
+  },
+  schoolSecretKey: {
+    type: String,
+    required: true
+  },
   isInCharge: { type: Boolean }
 });
 
@@ -28,19 +39,18 @@ const AddClass = mongoose.model("classes", classesSchema);
 
 function validateClasses(classes) {
   const schema = Joi.object({
-    name: Joi.string()
+    className: Joi.string()
       .min(3)
-      .max(8)
+      .max(12)
       .required()
       .uppercase(),
     level: Joi.string()
-      .min(3)
-      .max(8)
       .required()
       .uppercase(),
     classe: Joi.string()
       .max(12)
       .required(),
+    isInCharge: Joi.bool().required(),
     amount_to_pay: Joi.number().required()
   });
   return schema.validate(classes);

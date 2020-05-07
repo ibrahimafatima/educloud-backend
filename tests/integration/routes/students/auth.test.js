@@ -40,6 +40,9 @@ describe("/api/student/auth", () => {
         class_name: "JHS1 A",
         password: "12345678",
         isStudent: true,
+        schoolName: "niit",
+        role: "student",
+        schoolSecretKey: "12345",
         isRegistered: true
       }).save();
 
@@ -58,6 +61,9 @@ describe("/api/student/auth", () => {
         registration_number: "12345678",
         class_name: "JHS1 A",
         isStudent: true,
+        schoolSecretKey: "12345",
+        schoolName: "noel",
+        role: "student",
         isRegistered: false
       }).save();
 
@@ -107,6 +113,9 @@ describe("/api/student/auth", () => {
         registration_number: "12345678",
         class_name: "JHS1 A",
         isStudent: true,
+        schoolName: "noel",
+        schoolSecretKey: "12345",
+        role: "studdent",
         isRegistered: false
       }).save();
 
@@ -125,6 +134,9 @@ describe("/api/student/auth", () => {
         registration_number: "12345678",
         class_name: "JHS1 A",
         isStudent: true,
+        schoolName: "noel",
+        schoolSecretKey: "12345",
+        role: "student",
         password: "12345678",
         isRegistered: true
       }).save();

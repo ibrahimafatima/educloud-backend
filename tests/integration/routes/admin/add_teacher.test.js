@@ -18,7 +18,11 @@ describe("/api/admin/add/teacher", () => {
     schoolSecretKey: "1234",
     isAdmin: true,
     username: "ibra",
-    password: "12345678"
+    password: "12345678",
+    currency: "Cedis",
+    gender: "Female",
+    role: "Admin",
+    schoolName: "NOE"
   };
 
   describe("POST /", () => {
@@ -26,7 +30,7 @@ describe("/api/admin/add/teacher", () => {
       const admin = new AdminAuth(payload_true);
       const token = admin.generateAdminAuthToken();
       const res = await request(server)
-        .post("/api/admin/add/teacher")
+        .post("/api/admin/teacher")
         .set("x-auth-token", token)
         .send({
           teacherID: "R3263",
@@ -40,12 +44,17 @@ describe("/api/admin/add/teacher", () => {
       await new TeacherDetails({
         teacherID: "12345",
         username: "ibra",
+        addedBy: "mosh",
+        role: "teacher",
+        schoolSecretKey: "1234",
+        numberOfSubject: 0,
+        schoolName: "noel",
         classInCharge: "JHS2 A"
       }).save();
       const admin = new AdminAuth(payload_true);
       const token = admin.generateAdminAuthToken();
       const res = await request(server)
-        .post("/api/admin/add/teacher")
+        .post("/api/admin/teacher")
         .set("x-auth-token", token)
         .send({
           teacherID: "12345",
@@ -59,12 +68,17 @@ describe("/api/admin/add/teacher", () => {
       await new TeacherDetails({
         teacherID: "12345",
         username: "MOSH",
+        addedBy: "mosh",
+        role: "teacher",
+        schoolSecretKey: "1234",
+        numberOfSubject: 0,
+        schoolName: "noel",
         classInCharge: "JHS2 A"
       }).save();
       const admin = new AdminAuth(payload_true);
       const token = admin.generateAdminAuthToken();
       const res = await request(server)
-        .post("/api/admin/add/teacher")
+        .post("/api/admin/teacher")
         .set("x-auth-token", token)
         .send({
           teacherID: "6543321",
@@ -74,25 +88,11 @@ describe("/api/admin/add/teacher", () => {
       expect(res.status).toBe(400);
     });
 
-    it("Should save teacher details if class in charge does not exist", async () => {
-      const admin = new AdminAuth(payload_true);
-      const token = admin.generateAdminAuthToken();
-      await request(server)
-        .post("/api/admin/add/teacher")
-        .set("x-auth-token", token)
-        .send({
-          teacherID: "6543321",
-          username: "MOSH",
-          classInCharge: "none"
-        });
-      const result = await TeacherDetails.find({ username: "MOSH" });
-      expect(result[0]).toHaveProperty("username", "MOSH");
-      expect(result.length).toBe(1);
-    });
-
     it("Should return 400 if the class is already in charge", async () => {
       await new AddClass({
-        name: "JHS2 A",
+        className: "JHS2 A",
+        addedBy: "sakho",
+        schoolSecretKey: "1234",
         classe: "JHS2",
         amount_to_pay: 300,
         level: "JHS",
@@ -102,7 +102,7 @@ describe("/api/admin/add/teacher", () => {
       const admin = new AdminAuth(payload_true);
       const token = admin.generateAdminAuthToken();
       const res = await request(server)
-        .post("/api/admin/add/teacher")
+        .post("/api/admin/teacher")
         .set("x-auth-token", token)
         .send({
           teacherID: "6543321",
@@ -115,7 +115,9 @@ describe("/api/admin/add/teacher", () => {
 
     it("Should update class in charge to true and save teacher details", async () => {
       await new AddClass({
-        name: "JHS2 A",
+        className: "JHS2 A",
+        addedBy: "mosh",
+        schoolSecretKey: "1234",
         classe: "JHS2",
         amount_to_pay: 300,
         level: "JHS",
@@ -125,21 +127,20 @@ describe("/api/admin/add/teacher", () => {
       const admin = new AdminAuth(payload_true);
       const token = admin.generateAdminAuthToken();
       const res = await request(server)
-        .post("/api/admin/add/teacher")
+        .post("/api/admin/teacher")
         .set("x-auth-token", token)
         .send({
           teacherID: "6543321",
           username: "MOSH",
-          classInCharge: "JHS2 A"
+          className: "JHS2 A"
         });
       const result = await TeacherDetails.find({ username: "MOSH" });
-      const cls = await AddClass.find({ name: "JHS2 A" });
+      const cls = await AddClass.find({ className: "JHS2 A" });
       expect(result[0]).toHaveProperty("username", "MOSH");
       expect(result.length).toBe(1);
       expect(res.status).toBe(200);
       expect(cls.length).toBe(1);
       expect(cls[0].isInCharge).toBe(true);
-      expect(res.body).toHaveProperty("username", "MOSH");
     });
   });
   describe("GET /", () => {
@@ -149,61 +150,50 @@ describe("/api/admin/add/teacher", () => {
       const admin = new AdminAuth(payload_true);
       const token = admin.generateAdminAuthToken();
       await request(server)
-        .get("/api/admin/add/teacher")
+        .get("/api/admin/teacher")
         .set("x-auth-token", token);
       const result = await TeacherDetails.find();
       expect(result.length).toBe(0);
     });
-  });
-  it("Should send response if all is fine", async () => {
-    await new TeacherDetails({
-      teacherID: "12345",
-      username: "ibra",
-      classInCharge: "JHS2 A"
-    }).save();
-
-    const admin = new AdminAuth(payload_true);
-    const token = admin.generateAdminAuthToken();
-    await request(server)
-      .get("/api/admin/add/teacher")
-      .set("x-auth-token", token);
-    const result = await TeacherDetails.find();
-    expect(result.length).toBe(1);
-    expect(result[0]).toHaveProperty("username", "ibra");
-  });
-  describe("GET /teacherId", () => {
-    it("Should send particular teacher details if it exist", async () => {
+    it("Should send response if all is fine", async () => {
       await new TeacherDetails({
         teacherID: "12345",
+        addedBy: "mosh",
+        numberOfSubject: 0,
+        schoolSecretKey: "12345",
+        schoolName: "noel",
+        role: "teahcer",
         username: "ibra",
-        classInCharge: "JHS2 A"
+        className: "JHS2 A"
       }).save();
 
       const admin = new AdminAuth(payload_true);
       const token = admin.generateAdminAuthToken();
-      const res = await request(server)
-        .get("/api/admin/add/teacher/12345")
+      await request(server)
+        .get("/api/admin/teacher")
         .set("x-auth-token", token);
-      const teacher = await TeacherDetails.find({ teacherID: "12345" });
-      expect(res.status).toBe(200);
-      expect(teacher.length).toBe(1);
-      expect(teacher[0].username).toBe("ibra");
+      const result = await TeacherDetails.find();
+      expect(result.length).toBe(1);
+      expect(result[0]).toHaveProperty("username", "ibra");
     });
-
-    it("Should return 404 if user details not found", async () => {});
   });
   describe("DELETE /id", () => {
     it("should remove the teacher with the given id", async () => {
       const teacher = await new TeacherDetails({
         teacherID: "12345",
         username: "ibra",
+        addedBy: "sakho",
+        numberOfSubject: 0,
+        schoolSecretKey: "12345678",
+        schoolName: "NOEl",
+        role: "Admin",
         classInCharge: "JHS2 A"
       }).save();
 
       const admin = new AdminAuth(payload_true);
       const token = admin.generateAdminAuthToken();
       const res = await request(server)
-        .delete("/api/admin/add/teacher/" + teacher._id)
+        .delete("/api/admin/teacher/" + teacher._id)
         .set("x-auth-token", token);
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty("teacherID", "12345");
@@ -215,13 +205,18 @@ describe("/api/admin/add/teacher", () => {
       const teacher = await new TeacherDetails({
         teacherID: "12345",
         username: "ibra",
+        addedBy: "sakho",
+        numberOfSubject: 0,
+        schoolSecretKey: "12345678",
+        schoolName: "NOEl",
+        role: "Admin",
         classInCharge: "JHS2 A"
       }).save();
 
       const admin = new AdminAuth(payload_true);
       const token = admin.generateAdminAuthToken();
       const res = await request(server)
-        .put("/api/admin/add/teacher/" + teacher._id)
+        .put("/api/admin/teacher/" + teacher._id)
         .set("x-auth-token", token)
         .send({
           teacherID: "12345",
@@ -235,18 +230,23 @@ describe("/api/admin/add/teacher", () => {
       const teacher = await new TeacherDetails({
         teacherID: "12345",
         username: "ibra",
-        classInCharge: "JHS2 A"
+        addedBy: "sakho",
+        numberOfSubject: 0,
+        schoolSecretKey: "12345678",
+        schoolName: "NOE",
+        role: "Admin",
+        className: "JHS2 A"
       }).save();
 
       const admin = new AdminAuth(payload_true);
       const token = admin.generateAdminAuthToken();
       const res = await request(server)
-        .put("/api/admin/add/teacher/" + teacher._id)
+        .put("/api/admin/teacher/" + teacher._id)
         .set("x-auth-token", token)
         .send({
           teacherID: "12345",
           username: "ibrahim",
-          classInCharge: "JHS2 A"
+          className: "JHS2 A"
         });
       const result = await TeacherDetails.find();
       expect(res.status).toBe(200);

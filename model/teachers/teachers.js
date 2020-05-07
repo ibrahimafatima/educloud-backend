@@ -21,34 +21,62 @@ const teachersSchema = new mongoose.Schema({
     type: String,
     minlength: 8
   },
-  classInCharge: {
+  className: {
     type: String,
     minlength: 3,
     maxlength: 8
   },
+  role: {
+    type: String,
+    maxlength: 25,
+    required: true
+  },
+  schoolName: {
+    type: String,
+    maxlength: 25,
+    required: true
+  },
+  schoolSecretKey: {
+    type: String,
+    required: true
+  },
+  numberOfSubject: {
+    type: Number,
+    required: true
+  },
   firstName: {
     type: String,
     minlength: 3,
-    maxlength: 18
+    maxlength: 18,
+    default: "Not Specified"
   },
   lastName: {
     type: String,
     minlength: 3,
-    maxlength: 18
+    maxlength: 18,
+    default: "Not Specified"
   },
-  gender: { type: String },
-  dob: { type: Date },
+  gender: { type: String, default: "Not Specified" },
+  dob: { type: Date, default: "01/01/1900" },
   email: {
     type: String,
     minlength: 5,
-    maxlength: 255
+    maxlength: 255,
+    default: "Not Specified"
   },
   phone: {
     type: String,
-    minlength: 10,
-    maxlength: 10
+    maxlength: 15,
+    default: "Not Specified"
   },
-  address: { type: String },
+  address: { type: String, default: "Not Specified" },
+  addedBy: {
+    type: String,
+    required: true
+  },
+  lastUpdatedBy: {
+    type: String
+  },
   isTeacher: { type: Boolean }
 });
 
@@ -56,10 +84,14 @@ teachersSchema.methods.generateTeacherAuthToken = function() {
   const token = jwt.sign(
     {
       _id: this._id,
+      role: this.role,
+      gender: this.gender,
       isTeacher: this.isTeacher,
       teacherID: this.teacherID,
       username: this.username,
-      classInCharge: this.classInCharge
+      schoolName: this.schoolName,
+      className: this.className,
+      schoolSecretKey: this.schoolSecretKey
     },
     config.get("private_key")
   );
@@ -74,10 +106,9 @@ function validateTeacherDetails(addTeacher) {
       .min(3)
       .max(12)
       .required(),
-    classInCharge: Joi.string()
+    className: Joi.string()
       .min(3)
-      .max(8)
-      .required()
+      .max(12)
   });
   return schema.validate(addTeacher);
 }
@@ -107,7 +138,7 @@ function validateTeacherUpdate(teacherUpdate) {
       .max(18),
     gender: Joi.string()
       .min(3)
-      .max(10)
+      .max(14)
       .required(),
     dob: Joi.date().required(),
     email: Joi.string()
@@ -115,8 +146,7 @@ function validateTeacherUpdate(teacherUpdate) {
       .max(255)
       .email(),
     phone: Joi.string()
-      .min(10)
-      .max(10)
+      .max(15)
       .required(),
     address: Joi.string()
       .min(5)

@@ -9,7 +9,7 @@ describe("generateTeacherAuthToken", () => {
       _id: new mongoose.Types.ObjectId().toHexString(),
       teacherID: "R5434365543",
       username: "sakho",
-      classInCharge: "JHS1 C",
+      className: "JHS1 C",
       isTeacher: true
     };
     const teacher = new TeacherDetails(payload);

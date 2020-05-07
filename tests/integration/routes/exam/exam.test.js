@@ -20,13 +20,13 @@ describe("/api/schedule/exams", () => {
     _id: new mongoose.Types.ObjectId().toHexString(),
     teacherID: "12345678",
     username: "Mosh",
-    classInCharge: "JHS1 A",
+    className: "JHS1 A",
     isTeacher: true
   };
   const payload_false = {
     teacherID: "12345678",
     username: "Mosh",
-    classInCharge: "JHS1 A",
+    className: "JHS1 A",
     isTeacher: false
   };
 
@@ -35,7 +35,7 @@ describe("/api/schedule/exams", () => {
       const teacher = new TeacherDetails(payload_false);
       const token = teacher.generateTeacherAuthToken();
       const res = await request(server)
-        .post("/api/schedule/exams/post")
+        .post("/api/schedule/exams")
         .set("x-auth-token", token);
       expect(res.status).toBe(401);
     });
@@ -44,7 +44,7 @@ describe("/api/schedule/exams", () => {
       const teacher = new TeacherDetails(payload_true);
       const token = teacher.generateTeacherAuthToken();
       const res = await request(server)
-        .post("/api/schedule/exams/post")
+        .post("/api/schedule/exams")
         .set("x-auth-token", token)
         .send({
           class_name: "df",
@@ -55,20 +55,21 @@ describe("/api/schedule/exams", () => {
       expect(res.status).toBe(400);
     });
 
-    it("Should return 400 if teacher for that course is nort found", async () => {
+    it("Should return 400 if teacher for that course is not found", async () => {
       await new TeachersCourse({
-        courseName: "Math",
+        name: "Math",
         className: "JHS1 A",
-        teacher: new mongoose.Types.ObjectId().toHexString()
+        teacherID: "12345",
+        schoolSecretKey: "123456"
       }).save();
 
       const teacher = new TeacherDetails(payload_true);
       const token = teacher.generateTeacherAuthToken();
       const res = await request(server)
-        .post("/api/schedule/exams/post")
+        .post("/api/schedule/exams")
         .set("x-auth-token", token)
         .send({
-          class_name: "JHS2 C",
+          className: "JHS2 C",
           exam_name: "Biology test",
           schedule_date: "2020/11/11",
           subject: "Biology"
@@ -78,18 +79,19 @@ describe("/api/schedule/exams", () => {
 
     it("Should return 401 if teacher is not teaching that subject in that class", async () => {
       await new TeachersCourse({
-        courseName: "Math",
+        name: "Math",
         className: "JHS1 A",
-        teacher: new mongoose.Types.ObjectId().toHexString()
+        teacherID: "12345",
+        schoolSecretKey: "123456"
       }).save();
 
       const teacher = new TeacherDetails(payload_true);
       const token = teacher.generateTeacherAuthToken();
       const res = await request(server)
-        .post("/api/schedule/exams/post")
+        .post("/api/schedule/exams")
         .set("x-auth-token", token)
         .send({
-          class_name: "JHS1 A",
+          className: "JHS1 A",
           exam_name: "Math test",
           schedule_date: "2020/11/11",
           subject: "Math"

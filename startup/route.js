@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const error = require("../middleware/error");
 const admin_add_teacher = require("../routes/admin/add_teacher");
 const admin_auth = require("../routes/admin/auth");
@@ -17,15 +18,27 @@ const posted_exams = require("../routes/teacher/posted_exams");
 const student_view_mark = require("../routes/students/my_mark");
 const event = require("../routes/admin/events");
 const add_class = require("../routes/admin/add_class");
+const payment_details = require("../routes/admin/paymentDetails");
+const studentTimetable = require("../routes/teacher/timetable");
+const library = require("../routes/admin/library");
+const work_group = require("../routes/students/workGroup");
+const assignment = require("../routes/teacher/assignment");
+const birthday = require("../routes/students/birthday");
+const chat = require("../routes/students/chat");
+const discussion = require("../routes/students/discussion");
+const term = require("../routes/admin/term");
+const classe = require("../routes/admin/school_class");
+const level = require("../routes/admin/level");
 
-module.exports = function(app) {
+module.exports = function (app) {
   app.use(express.json());
-  app.use("/api/admin/add/teacher", admin_add_teacher);
+  app.use(cors());
+  app.use("/api/admin/teacher", admin_add_teacher);
   app.use("/api/admin/auth", admin_auth);
   app.use("/api/add/class", add_class);
-  app.use("/api/teacher/info", teacher_information);
+  app.use("/api/teacher/update", teacher_information);
   app.use("/api/teacher/auth", teacher_auth);
-  app.use("/api/teacher/add/course", teachers_course);
+  app.use("/api/teacher/course", teachers_course);
   app.use("/api/teacher/student", teacher_add_student);
   app.use("/api/teacher/students/subject", teacher_students_of_subject);
   app.use("/api/student/auth", student_auth);
@@ -37,6 +50,17 @@ module.exports = function(app) {
   app.use("/api/teacher/posted-exam", posted_exams);
   app.use("/api/student/my-mark", student_view_mark);
   app.use("/api/admin/event", event);
+  app.use("/api/admin/payment", payment_details);
+  app.use("/api/student/timetable", studentTimetable);
+  app.use("/api/books", library);
+  app.use("/api/student/work-group", work_group);
+  app.use("/api/teacher/assignment", assignment);
+  app.use("/api/student/birthday", birthday);
+  app.use("/api/student/message", chat);
+  app.use("/api/discussion", discussion);
+  app.use("/api/term", term);
+  app.use("/api/classe", classe);
+  app.use("/api/level", level);
 
   app.use(error);
 };

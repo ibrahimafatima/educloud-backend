@@ -5,7 +5,7 @@ const isTeacher = require("../../middleware/isTeacher");
 const { ValidateObjectId } = require("../../validation/validate_objectId");
 const {
   StudentDetails,
-  ValidateStudentDetails
+  ValidateStudentDetails,
 } = require("../../model/students/students");
 
 const router = express.Router();
@@ -14,11 +14,11 @@ const router = express.Router();
 //AND I AM JUST SIMULATING THE CLASS IN THE BODY HERE IN THE
 //REAL APP THE CLASS WILL BE SET AUTOMATICALLY SINCE THE TEACHER
 //WILL HAVE TO CLICK ON THE CLASS TO ADD.
-router.post("/add", [isAuth, isTeacher], async (req, res) => {
+router.post("/", [isAuth, isTeacher], async (req, res) => {
   const { error } = ValidateStudentDetails(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  if (req.adminToken.classInCharge !== req.body.class_name)
+  if (req.adminToken.className !== req.body.class_name)
     return res
       .status(401)
       .send(
@@ -26,18 +26,21 @@ router.post("/add", [isAuth, isTeacher], async (req, res) => {
       );
 
   const student = await StudentDetails.findOne({
-    registration_number: req.body.registration_number
+    registration_number: req.body.registration_number,
   });
   if (student)
     return res
       .status(400)
       .send("The student with this registration number is already added");
   const added_student = new StudentDetails({
+    name: req.body.name,
     registration_number: req.body.registration_number,
+    schoolSecretKey: req.adminToken.schoolSecretKey,
     class_name: req.body.class_name,
-    year: req.body.year,
     term: req.body.term,
-    isRegistered: false
+    schoolName: req.adminToken.schoolName,
+    role: "Student",
+    isRegistered: false,
   });
   const result = await added_student.save();
   res.send(result);
@@ -53,8 +56,7 @@ router.put("/update/:id", [isAuth, isTeacher], async (req, res) => {
     {
       registration_number: req.body.registration_number,
       class_name: req.body.class_name,
-      year: req.body.year,
-      term: req.body.term
+      term: req.body.term,
     },
     { new: true }
   );
@@ -62,18 +64,106 @@ router.put("/update/:id", [isAuth, isTeacher], async (req, res) => {
   res.send(student);
 });
 
+router.get("/", [isAuth], async (req, res) => {
+  const students = await StudentDetails.find({
+    schoolSecretKey: req.adminToken.schoolSecretKey,
+  }).sort("name");
+  if (!students) return res.status(400).send("Couldnt get students list");
+  res.send(students);
+});
+
+router.get("/:id", [isAuth], async (req, res) => {
+  const students = await StudentDetails.find({
+    $and: [
+      { class_name: req.params.id },
+      { schoolSecretKey: req.adminToken.schoolSecretKey },
+    ],
+  }).select(["-__v"]);
+  if (!students) return res.status(404).send("No student found");
+  res.send(students);
+});
+
+router.get("/reg/:id", [isAuth], async (req, res) => {
+  const students = await StudentDetails.findOne({
+    $and: [
+      { registration_number: req.params.id },
+      { schoolSecretKey: req.adminToken.schoolSecretKey },
+    ],
+  }).select(["-__v"]);
+  if (!students) return res.status(404).send("No student found");
+  res.send(students);
+});
+
+router.get("/ID/:id", [isAuth], async (req, res) => {
+  const students = await StudentDetails.findById(req.params.id);
+  if (!students) return res.status(404).send("No student found");
+  res.send(students);
+});
+
 router.delete("/delete/:id", [isAuth, isTeacher], async (req, res) => {
   const { error } = ValidateObjectId(req.params);
   if (error) return res.status(400).send(error.details[0].message);
   const result = await StudentDetails.findByIdAndRemove(req.params.id);
+  if (!result)
+    return res.status(404).send("No student found with the given id");
   res.send(result);
 });
 
 router.delete("/all", [isAuth, isTeacher], async (req, res) => {
   const students = await StudentDetails.find({
-    class_name: req.body.class_name
+    class_name: req.body.class_name,
   }).remove();
   res.send(students);
+});
+
+//MOVE CLASS TO NEXT TERM
+router.put("/next-term", [isAuth, isTeacher], async (req, res) => {
+  if (req.adminToken.className !== req.body.className)
+    return res
+      .status(401)
+      .send(
+        `You do not have permission to mofify student details in ${req.body.className}`
+      );
+  const new_term_student = await StudentDetails.updateMany(
+    {
+      $and: [
+        { schoolSecretKey: req.adminToken.schoolSecretKey },
+        { class_name: req.adminToken.className },
+      ],
+    },
+    { $set: { term: req.body.term } }
+  );
+  res.send(new_term_student);
+});
+
+//MOVE CLASS TO NEXT YEAR
+router.put("/next-year", [isAuth, isTeacher], async (req, res) => {
+  const student = await StudentDetails.findOne({
+    $and: [
+      { registration_number: req.body.registration_number },
+      { schoolSecretKey: req.adminToken.schoolSecretKey },
+    ],
+  });
+
+  if (!student) return res.status(404).send("No such student found");
+
+  const new_year_student = await StudentDetails.update(
+    {
+      $and: [
+        { schoolSecretKey: req.adminToken.schoolSecretKey },
+        { registration_number: req.body.registration_number },
+        { class_name: req.adminToken.className },
+      ],
+    },
+    {
+      $set: {
+        class_name: req.body.className,
+        term: req.body.term,
+        fee_paid: 0,
+      },
+    }
+  );
+  res.send(new_year_student);
 });
 
 module.exports = router;

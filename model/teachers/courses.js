@@ -4,7 +4,7 @@ const Joi = require("@hapi/joi");
 Joi.objectId = require("joi-objectid")(Joi);
 
 const teacherCourseSchema = new mongoose.Schema({
-  courseName: {
+  name: {
     type: String,
     required: true
   },
@@ -12,9 +12,13 @@ const teacherCourseSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  teacher: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "teachers"
+  schoolSecretKey: {
+    type: String,
+    required: true
+  },
+  teacherID: {
+    type: String,
+    required: true
   }
 });
 
@@ -22,14 +26,15 @@ const TeachersCourse = mongoose.model("teacher_courses", teacherCourseSchema);
 
 function validateCourseAdded(course) {
   const schema = Joi.object({
-    courseName: Joi.string()
+    name: Joi.string()
       .max(20)
       .required(),
     className: Joi.string()
       .min(3)
       .max(8)
       .required(),
-    teacher: Joi.objectId()
+    schoolSecretKey: Joi.string(),
+    teacherID: Joi.string()
   });
   return schema.validate(course);
 }

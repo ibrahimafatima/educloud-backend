@@ -1,26 +1,43 @@
 const express = require("express");
+const { notify } = require("../pusher/notify");
 const isAuth = require("../../middleware/isAuth");
 const isAdmin = require("../../middleware/isAdmin");
+const validateObjectId = require("../../middleware/validateObjectId");
 const { Event, ValidateEvent } = require("../../model/admin/events");
 
 const router = express.Router();
 
-router.post("/", async (req, res) => {
+router.post("/", [isAuth, isAdmin], async (req, res) => {
   const { error } = ValidateEvent(req.body);
   if (error) return res.status(400).send(error.details[0].message);
+
   const event = new Event({
-    event_title: req.body.event_title,
+    posted_by: req.adminToken.username,
     event_date: req.body.event_date,
-    event_message: req.body.event_message
+    event_message: req.body.event_message,
+    schoolSecretKey: req.adminToken.schoolSecretKey,
   });
-  const result = await event.save();
+  const result = await event.save((err, obj) => {
+    const school = req.adminToken.schoolName;
+    notify(school, "update");
+  });
   res.send(result);
 });
 
-router.get("/", async (req, res) => {
-  const event = await Event.find();
-  if (event.length === 0) return res.send("No event posted yet");
+router.get("/", [isAuth], async (req, res) => {
+  const event = await Event.find({
+    schoolSecretKey: req.adminToken.schoolSecretKey,
+  })
+    .limit(6)
+    .sort("-post_date");
+  if (!event) return res.status(400).send("Error while getting event...");
   res.send(event);
+});
+
+router.get("/:id", [isAuth, validateObjectId], async (req, res) => {
+  const notice = await Event.findById(req.params.id);
+  if (!notice) return res.status(404).send("No notice found");
+  res.send(notice);
 });
 
 router.put("/:id", [isAuth, isAdmin], async (req, res) => {
@@ -29,9 +46,8 @@ router.put("/:id", [isAuth, isAdmin], async (req, res) => {
   const result = await Event.findByIdAndUpdate(
     req.params.id,
     {
-      event_title: req.body.event_title,
       event_date: req.body.event_date,
-      event_message: req.body.event_message
+      event_message: req.body.event_message,
     },
     { new: true }
   );

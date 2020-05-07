@@ -9,66 +9,79 @@ const studentSchema = new mongoose.Schema({
   registration_number: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+  },
+  schoolSecretKey: {
+    type: String,
+    required: true,
   },
   class_name: {
     type: String,
     required: true,
     minlength: 3,
-    maxlength: 8
+    maxlength: 8,
   },
   password: {
     type: String,
-    minlength: 8
+    minlength: 8,
   },
-  username: {
+  name: {
     type: String,
     minlength: 3,
-    maxlength: 12
+    maxlength: 25,
   },
-  first_name: {
-    type: String,
-    minlength: 3,
-    maxlength: 18
-  },
-  last_name: {
-    type: String,
-    minlength: 3,
-    maxlength: 18
-  },
-  year: { type: String },
   term: {
     type: String,
     minlength: 3,
-    maxlength: 20
+    maxlength: 20,
   },
-  gender: { type: String },
-  father_name: { type: String },
-  mother_name: { type: String },
-  dob: { type: Date },
+  gender: { type: String, default: "Not Specified" },
+  father_name: { type: String, default: "Not Specified" },
+  mother_name: { type: String, default: "Not Specified" },
+  dob: { type: Date, default: "01/01/1900" },
   email: {
     type: String,
     minlength: 8,
-    maxlength: 255
+    maxlength: 255,
+    default: "Not Specified",
   },
-  address: { type: String, minlength: 6, maxlength: 255 },
+  fee_paid: {
+    type: Number,
+    default: 0,
+  },
+  address: {
+    type: String,
+    default: "Not Specified",
+  },
   phone: {
     type: String,
-    minlength: 10,
-    maxlength: 10
+    maxlength: 15,
+    default: "Not Specified",
   },
   isRegistered: { type: Boolean },
-  isStudent: { type: Boolean }
+  role: {
+    type: String,
+    required: true,
+  },
+  schoolName: {
+    type: String,
+    required: true,
+  },
+  isStudent: { type: Boolean },
 });
 
-studentSchema.methods.generateStudentToken = function() {
+studentSchema.methods.generateStudentToken = function () {
   const token = jwt.sign(
     {
       _id: this._id,
       registration_number: this.registration_number,
-      username: this.username,
+      schoolSecretKey: this.schoolSecretKey,
+      username: this.name,
+      role: this.role,
+      gender: this.gender,
+      schoolName: this.schoolName,
       class_name: this.class_name,
-      isStudent: this.isStudent
+      isStudent: this.isStudent,
     },
     config.get("private_key")
   );
@@ -80,21 +93,9 @@ const studentDetails = mongoose.model("students", studentSchema);
 function validateStudentDetails(addStudent) {
   const schema = Joi.object({
     registration_number: Joi.string().required(),
-    username: Joi.string()
-      .min(3)
-      .max(12)
-      .required(),
-    class_name: Joi.string()
-      .lowercase()
-      .min(3)
-      .max(8)
-      .required(),
-    term: Joi.string()
-      .required()
-      .min(3)
-      .max(20)
-      .required(),
-    year: Joi.string().required()
+    name: Joi.string().min(3).max(25).required(),
+    class_name: Joi.string().lowercase().min(3).max(8).required(),
+    term: Joi.string().required().min(3).max(20).required(),
   });
   return schema.validate(addStudent);
 }
@@ -102,53 +103,23 @@ function validateStudentDetails(addStudent) {
 function validateStudentAuth(student) {
   const schema = Joi.object({
     registration_number: Joi.string().required(),
-    username: Joi.string()
-      .min(3)
-      .max(12)
-      .required(),
-    class_name: Joi.string()
-      .min(3)
-      .max(8)
-      .required(),
-    password: Joi.string()
-      .min(8)
-      .required(),
-    password_again: Joi.ref("password")
+    name: Joi.string().min(3).max(12),
+    class_name: Joi.string().min(3).max(8),
+    password: Joi.string().min(8).required(),
+    password_again: Joi.ref("password"),
   });
   return schema.validate(student);
 }
 
 function validateStudentUpdate(studentUpdate) {
   const schema = Joi.object({
-    first_name: Joi.string()
-      .min(3)
-      .max(18)
-      .required(),
-    last_name: Joi.string()
-      .min(3)
-      .max(18),
-    gender: Joi.string()
-      .min(3)
-      .max(10)
-      .required(),
-    father_name: Joi.string()
-      .min(3)
-      .max(18),
-    mother_name: Joi.string()
-      .min(3)
-      .max(18),
-    dob: Joi.date().required(),
-    email: Joi.string()
-      .min(5)
-      .max(255)
-      .email(),
-    phone: Joi.string()
-      .min(10)
-      .max(10),
-    address: Joi.string()
-      .min(5)
-      .max(255)
-      .required()
+    father_name: Joi.string().min(3).max(18),
+    mother_name: Joi.string().min(3).max(18),
+    gender: Joi.string().min(3).max(15),
+    email: Joi.string().min(5).max(255).email(),
+    dob: Joi.string(),
+    phone: Joi.string(),
+    address: Joi.string().min(5).max(255),
   });
   return schema.validate(studentUpdate);
 }

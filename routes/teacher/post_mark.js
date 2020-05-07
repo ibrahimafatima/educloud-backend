@@ -1,25 +1,86 @@
 const express = require("express");
 const isAuth = require("../../middleware/isAuth");
 const isTeacher = require("../../middleware/isTeacher");
-const { StudentSubjects } = require("../../model/students/subjects");
+const { StudentDetails } = require("../../model/students/students");
+const { Exams } = require("../../model/exams/exams");
 const { Mark, ValidateMark } = require("../../model/teachers/mark");
 
 const router = express.Router();
 
-router.post("/", [isAuth, isTeacher], async (req, res) => {
+//NAME IN THE BODY WAS SUBJECT CHANGED BECAUSE OF SELECT
+
+router.post("/:id", [isAuth, isTeacher], async (req, res) => {
   const { error } = ValidateMark(req.body);
   if (error) return res.status(400).send(error.details[0].message);
+
+  const student = await StudentDetails.findOne({
+    $and: [
+      { registration_number: req.params.id },
+      { schoolSecretKey: req.adminToken.schoolSecretKey },
+    ],
+  });
+
+  if (!student) return res.status(404).send("No such student found");
+
+  const exam = await Exams.findOne({
+    $and: [
+      { subject: req.body.name },
+      { exam_name: req.body.exam_name },
+      { schoolSecretKey: req.adminToken.schoolSecretKey },
+    ],
+  });
+
+  if (!exam)
+    return res
+      .status(404)
+      .send("Make sure you select the right exam name and subject");
+
   const mark = new Mark({
-    registration_number: req.body.registration_number,
-    student_name: req.body.student_name,
-    subject: req.body.subject,
+    registration_number: req.params.id,
+    student_name: student.name,
+    name: req.body.name,
     mark: req.body.mark,
     grade: req.body.grade,
     remark: req.body.remark,
-    exam_name: req.body.exam_name
+    exam_name: req.body.exam_name,
+    schoolSecretKey: req.adminToken.schoolSecretKey,
   });
   const result = await mark.save();
   res.send(result);
+});
+
+//MODIFICATION MADE HERE_ _ _ _ _
+router.get("/:id", [isAuth], async (req, res) => {
+  const student = await StudentDetails.findOne({
+    $and: [
+      { registration_number: req.params.id },
+      { schoolSecretKey: req.adminToken.schoolSecretKey },
+    ],
+  });
+
+  const marks = await Mark.find({
+    $and: [
+      { status: "New" },
+      { name: student.class_name },
+      { registration_number: req.params.id },
+      { schoolSecretKey: req.adminToken.schoolSecretKey },
+    ],
+  });
+  if (!marks) return res.status(404).send("No mark was found");
+  res.send(marks);
+});
+
+router.get("/mark/:id", [isAuth], async (req, res) => {
+  const mark = await Mark.findById(req.params.id);
+  if (!mark) return res.status(404).send("Not found");
+  res
+    .send(mark)
+    .select([
+      "-_id",
+      "-registration_number",
+      "-schoolSecretKey",
+      "-student_name",
+    ]);
 });
 
 router.put("/:id", [isAuth, isTeacher], async (req, res) => {
@@ -30,11 +91,18 @@ router.put("/:id", [isAuth, isTeacher], async (req, res) => {
     {
       mark: req.body.mark,
       grade: req.body.grade,
-      remark: req.body.remark
+      remark: req.body.remark,
     },
     { new: true }
   );
   res.send(mark);
+});
+
+router.delete("/:id", [isAuth, isTeacher], async (req, res) => {
+  const mark = await Mark.findById(req.params.id);
+  if (!mark) return res.status(404).send("The mark does not exist");
+  const result = await mark.remove();
+  res.send(result);
 });
 
 module.exports = router;
