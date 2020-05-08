@@ -51,17 +51,9 @@ router.post("/:id", [isAuth, isTeacher], async (req, res) => {
 
 //MODIFICATION MADE HERE_ _ _ _ _
 router.get("/:id", [isAuth], async (req, res) => {
-  const student = await StudentDetails.findOne({
-    $and: [
-      { registration_number: req.params.id },
-      { schoolSecretKey: req.adminToken.schoolSecretKey },
-    ],
-  });
-
   const marks = await Mark.find({
     $and: [
       { status: "New" },
-      { name: student.class_name },
       { registration_number: req.params.id },
       { schoolSecretKey: req.adminToken.schoolSecretKey },
     ],
@@ -103,6 +95,14 @@ router.delete("/:id", [isAuth, isTeacher], async (req, res) => {
   if (!mark) return res.status(404).send("The mark does not exist");
   const result = await mark.remove();
   res.send(result);
+});
+
+router.put("/", [isAuth, isTeacher], async (req, res) => {
+  const new_year_mark = await Mark.updateMany(
+    { schoolSecretKey: req.adminToken.schoolSecretKey },
+    { $set: { status: "Old" } }
+  );
+  res.send(new_year_mark);
 });
 
 module.exports = router;

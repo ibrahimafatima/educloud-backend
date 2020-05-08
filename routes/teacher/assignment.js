@@ -92,4 +92,17 @@ router.delete("/:id", [isAuth, isTeacher], async (req, res) => {
   res.send(result);
 });
 
+router.put("/next-year", [isAuth, isTeacher], async (req, res) => {
+  const new_year_assignment = await Assignment.updateMany(
+    {
+      $and: [
+        { schoolSecretKey: req.adminToken.schoolSecretKey },
+        { teacherID: req.adminToken.teacherID },
+      ],
+    },
+    { $set: { status: "Old" } }
+  );
+  res.send(new_year_assignment);
+});
+
 module.exports = router;
