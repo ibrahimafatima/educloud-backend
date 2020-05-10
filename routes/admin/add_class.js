@@ -1,26 +1,29 @@
+config = require("config");
 const express = require("express");
 const mongoose = require("mongoose");
-config = require("config");
-const validaObjectId = require("../../middleware/validateObjectId");
 mongoose.set("useFindAndModify", false);
 const isAuth = require("../../middleware/isAuth");
 const isAdmin = require("../../middleware/isAdmin");
-const { AddClass, ValidateClasses } = require("../../model/admin/classes");
 const { Timetable } = require("../../model/teachers/timetable");
-const { TeacherDetails } = require("../../model/teachers/teachers");
 const { TeachersCourse } = require("../../model/teachers/courses");
 const { StudentDetails } = require("../../model/students/students");
+const validaObjectId = require("../../middleware/validateObjectId");
+const { TeacherDetails } = require("../../model/teachers/teachers");
+const { AddClass, ValidateClasses } = require("../../model/admin/classes");
 
 const router = express.Router();
 
+//POST REQUEST FOR ADMIN TO ADD A CLASS
 router.post("/", [isAuth, isAdmin], async (req, res) => {
   const { error } = ValidateClasses(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
+  //CHECK IF CLASSNAME ALREADY EXIST FOR THAT SCHOOL
   const classes = await AddClass.findOne({ className: req.body.className });
   if (classes)
     return res.status(400).send("The Class you entered already exist...");
 
+  //IF CLASSNAME DOES NOT EXIST SAVE TO THE DB
   const newClass = new AddClass({
     className: req.body.className,
     classe: req.body.classe,
@@ -30,10 +33,12 @@ router.post("/", [isAuth, isAdmin], async (req, res) => {
     schoolSecretKey: req.adminToken.schoolSecretKey,
     isInCharge: req.body.isInCharge,
   });
+
   const result = await newClass.save();
   return res.send(result);
 });
 
+//GET ALL CLASSES OF A PARTICULAR SCHOOL
 router.get("/", [isAuth], async (req, res) => {
   const classes = await AddClass.find({
     schoolSecretKey: req.adminToken.schoolSecretKey,
@@ -42,6 +47,7 @@ router.get("/", [isAuth], async (req, res) => {
   res.send(classes);
 });
 
+//GET A PARTICULAR CLASS USING THE MONGODB _id
 router.get("/:id", [isAuth, isAdmin], async (req, res) => {
   const classes = await AddClass.findOne({
     _id: req.params.id,
@@ -50,51 +56,17 @@ router.get("/:id", [isAuth, isAdmin], async (req, res) => {
   res.send(classes);
 });
 
+//UPDATE A CLASS DETAILS
 router.put("/:id", [isAuth, isAdmin], async (req, res) => {
-  //const classes = await AddClass.findOne({ className: req.body.className });
-  // if (classes)
-  //   return res.status(400).send("The Class you entered already exist...");
   const clas = await AddClass.findById(req.params.id);
   if (!clas) return res.status(404).send("Class not found");
-  const classes = await AddClass.findOne({ className: req.body.className });
-  if (classes)
-    return res.status(400).send("The Class you entered already exist...");
-  const timetable = await Timetable.findOne({
-    className: clas.className,
-  });
-  if (timetable)
-    return res
-      .status(404)
-      .send(
-        "Delete all timetable where this class is added before updating it."
-      );
-  const teacher = await TeacherDetails.findOne({
-    className: clas.className,
-  });
-  if (teacher)
-    return res
-      .status(404)
-      .send(
-        "Delete or update teachers where this class is added before updating it."
-      );
-  const course = await TeachersCourse.findOne({
-    className: clas.className,
-  });
-  if (course)
-    return res
-      .status(404)
-      .send(
-        "Delete or update courses where this class is added before updating it."
-      );
-  const student = await StudentDetails.findOne({
-    class_name: clas.className,
-  });
-  if (student)
-    return res
-      .status(404)
-      .send(
-        "Delete or update students info where this class is added before updating it."
-      );
+
+  //DONT UPDATE IF CLASSNAME IS MODIFIED DURING UPDATE
+  //AND NAME GIVEN  IS ALREADY AVAILABLE
+
+  if (clas.className !== req.body.className)
+    return res.status(400).send("You cannot update a class name...");
+
   const classToUpdate = await AddClass.findByIdAndUpdate(
     req.params.id,
     {
@@ -114,41 +86,53 @@ router.put("/:id", [isAuth, isAdmin], async (req, res) => {
 router.delete("/:id", [isAuth, isAdmin, validaObjectId], async (req, res) => {
   const clas = await AddClass.findById(req.params.id);
   if (!clas) return res.status(404).send("Class not found");
-  const timetable = await Timetable.findOne({
-    className: clas.className,
+  const timetable = await Timetable.find({
+    $and: [
+      { className: clas.className },
+      { schoolSecretKey: req.adminToken.schoolSecretKey },
+    ],
   });
   if (timetable)
     return res
       .status(404)
       .send(
-        "Delete all timetable where this class is added before deleting it."
+        "Remove all timetable where this class is added before deleting it."
       );
-  const teacher = await TeacherDetails.findOne({
-    className: clas.className,
+  const teacher = await TeacherDetails.find({
+    $and: [
+      { className: clas.className },
+      { schoolSecretKey: req.adminToken.schoolSecretKey },
+    ],
   });
   if (teacher)
     return res
       .status(404)
       .send(
-        "Delete or update teachers where this class is added before deleting it."
+        "Remove or update teachers info attached to this class before updating."
       );
-  const course = await TeachersCourse.findOne({
-    className: clas.className,
+  const course = await TeachersCourse.find({
+    $and: [
+      { className: clas.className },
+      { schoolSecretKey: req.adminToken.schoolSecretKey },
+    ],
   });
   if (course)
     return res
       .status(404)
       .send(
-        "Delete or update courses where this class is added before deleting it."
+        "Remove or update courses where this class is added before deleting it."
       );
-  const student = await StudentDetails.findOne({
-    class_name: clas.className,
+  const student = await StudentDetails.find({
+    $and: [
+      { class_name: clas.className },
+      { schoolSecretKey: req.adminToken.schoolSecretKey },
+    ],
   });
   if (student)
     return res
       .status(404)
       .send(
-        "Delete or update students info where this class is added before deleting it."
+        "Remove or update students info where this class is added before deleting it."
       );
   const classToRemove = await AddClass.findByIdAndRemove(req.params.id);
   res.send(classToRemove);

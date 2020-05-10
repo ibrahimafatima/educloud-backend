@@ -1,9 +1,9 @@
-const express = require("express");
-const Fawn = require("fawn");
 config = require("config");
+const Fawn = require("fawn");
+const express = require("express");
+const mongoose = require("mongoose");
 const isAuth = require("../../middleware/isAuth");
 const isAdmin = require("../../middleware/isAdmin");
-const mongoose = require("mongoose");
 const { AddClass } = require("../../model/admin/classes");
 const { TeachersCourse } = require("../../model/teachers/courses");
 const validateObjectId = require("../../middleware/validateObjectId");
@@ -15,6 +15,7 @@ const router = express.Router();
 
 Fawn.init(mongoose);
 
+//ADDING A TEACHER TO THE SCHOOL
 router.post("/", [isAuth, isAdmin], async (req, res) => {
   const { error } = validateTeacherDetails(req.body);
   if (error) return res.status(400).send(error.details[0].message);
@@ -57,15 +58,16 @@ router.post("/", [isAuth, isAdmin], async (req, res) => {
   res.send(result);
 });
 
+//GET ALL TEACHERS OF A SCHOOL
 router.get("/", [isAuth], async (req, res) => {
   const teachers = await TeacherDetails.find({
     schoolSecretKey: req.adminToken.schoolSecretKey,
   }).sort("username");
   if (!teachers) return res.status(400).send("Couldnt get teachers list");
-  //Get number of class the teacher teaches
   res.send(teachers);
 });
 
+//GET A TEACHER BY IT'S TEACHERID
 router.get("/:id", [isAuth], async (req, res) => {
   const teacher = await TeacherDetails.findOne({
     $and: [
@@ -78,6 +80,7 @@ router.get("/:id", [isAuth], async (req, res) => {
   res.send(teacher);
 });
 
+//GET A TEACHER BY MONGOD _id
 router.get("/teacher/:id", [isAuth], async (req, res) => {
   const teacher = await TeacherDetails.findOne({
     $and: [
@@ -90,9 +93,11 @@ router.get("/teacher/:id", [isAuth], async (req, res) => {
   res.send(teacher);
 });
 
+//UPDATE A TEACHER DETAILS
 router.put("/:id", [isAuth, isAdmin, validateObjectId], async (req, res) => {
   const { error } = validateTeacherDetails(req.body);
   if (error) return res.status(400).send(error.details[0].message);
+
   const teacher = await TeacherDetails.findByIdAndUpdate(
     req.params.id,
     {
