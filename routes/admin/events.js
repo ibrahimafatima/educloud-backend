@@ -2,8 +2,8 @@ const express = require("express");
 const { notify } = require("../pusher/notify");
 const isAuth = require("../../middleware/isAuth");
 const isAdmin = require("../../middleware/isAdmin");
-const validateObjectId = require("../../middleware/validateObjectId");
 const { Event, ValidateEvent } = require("../../model/admin/events");
+const validateObjectId = require("../../middleware/validateObjectId");
 
 const router = express.Router();
 

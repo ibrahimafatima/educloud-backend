@@ -1,5 +1,5 @@
-const express = require("express");
 const bcrypt = require("bcrypt");
+const express = require("express");
 const isAuth = require("../../middleware/isAuth");
 const {
   AdminAuth,
@@ -13,6 +13,7 @@ const router = express.Router();
 router.post("/login", async (req, res) => {
   const { error } = ValidateAdminAuth(req.body);
   if (error) return res.status(400).send(error.details[0].message);
+
   const adminUser = await AdminAuth.findOne({
     username: req.body.username.trim(),
   });
@@ -22,8 +23,7 @@ router.post("/login", async (req, res) => {
     req.body.schoolSecretKey.trim(),
     adminUser.schoolSecretKey
   );
-  if (!secretKey)
-    return res.status(404).send("Your secret key might not be valid");
+  if (!secretKey) return res.status(404).send("Your secret key is invalid");
   const password = await bcrypt.compare(
     req.body.password.trim(),
     adminUser.password
@@ -41,6 +41,7 @@ router.post("/login", async (req, res) => {
 router.post("/register", async (req, res) => {
   const { error } = ValidateAdminRegistration(req.body);
   if (error) return res.status(400).send(error.details[0].message);
+
   const adminUsername = await AdminAuth.findOne({
     username: req.body.username.trim(),
   });

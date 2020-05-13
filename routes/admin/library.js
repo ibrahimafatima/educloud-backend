@@ -10,7 +10,11 @@ router.post("/", [isAuth, isAdmin], async (req, res) => {
   const { error } = ValidateLibrary(req.body);
   if (error) return res.status(400).send(error.details[0].message);
   const book = await Library.findOne({
-    $and: [{ bookTitle: req.body.bookTitle }, { author: req.body.author }],
+    $and: [
+      { bookTitle: req.body.bookTitle },
+      { author: req.body.author },
+      { schoolSecretKey: req.adminToken.schoolSecretKey },
+    ],
   });
 
   if (book) return res.status(400).send("This book is already added");

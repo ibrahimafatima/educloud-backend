@@ -1,14 +1,13 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const { notify } = require("../pusher/notify");
 const isAuth = require("../../middleware/isAuth");
-const validateObjectId = require("../../middleware/validateObjectId");
+const isAdmin = require("../../middleware/isAdmin");
 const isTeacher = require("../../middleware/isTeacher");
 const isStudent = require("../../middleware/isStudent");
-const isAdmin = require("../../middleware/isAdmin");
-const { Exams, ValidateExams } = require("../../model/exams/exams");
 const { TeachersCourse } = require("../../model/teachers/courses");
-const { StudentDetails } = require("../../model/students/students");
-const mongoose = require("mongoose");
+const { Exams, ValidateExams } = require("../../model/exams/exams");
+const validateObjectId = require("../../middleware/validateObjectId");
 
 const router = express.Router();
 
