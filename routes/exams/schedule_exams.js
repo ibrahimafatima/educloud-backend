@@ -14,6 +14,7 @@ const router = express.Router();
 router.post("/", [isAuth, isTeacher], async (req, res) => {
   const { error } = ValidateExams(req.body);
   if (error) return res.status(400).send(error.details[0].message);
+
   const classes = await TeachersCourse.findOne({
     name: req.body.subject,
     className: req.body.className,
@@ -49,6 +50,7 @@ router.post("/", [isAuth, isTeacher], async (req, res) => {
 router.get("/student", [isAuth, isStudent], async (req, res) => {
   const exams = await Exams.find({
     $and: [
+      { status: "New" },
       { className: req.adminToken.class_name },
       { schoolSecretKey: req.adminToken.schoolSecretKey },
     ],
@@ -60,6 +62,7 @@ router.get("/student", [isAuth, isStudent], async (req, res) => {
 router.get("/teacher", [isAuth, isTeacher], async (req, res) => {
   const exams = await Exams.find({
     $and: [
+      { status: "New" },
       { teacherID: req.adminToken.teacherID },
       { schoolSecretKey: req.adminToken.schoolSecretKey },
     ],
@@ -70,7 +73,10 @@ router.get("/teacher", [isAuth, isTeacher], async (req, res) => {
 
 router.get("/admin", [isAuth, isAdmin], async (req, res) => {
   const exams = await Exams.find({
-    schoolSecretKey: req.adminToken.schoolSecretKey,
+    $and: [
+      { Status: "New" },
+      { schoolSecretKey: req.adminToken.schoolSecretKey },
+    ],
   }).sort("-schedule_date");
   if (!exams) return res.status(404).send("No exam was found");
   res.send(exams);
@@ -132,6 +138,19 @@ router.put("/:id", [isAuth, isTeacher, validateObjectId], async (req, res) => {
   });
   res.send(updatedExam);
 });
+
+// router.put("/next-year", [isAuth, isTeacher], async (req, res) => {
+//   const new_year_assignment = await Assignment.updateMany(
+//     {
+//       $and: [
+//         { schoolSecretKey: req.adminToken.schoolSecretKey },
+//         { teacherID: req.adminToken.teacherID },
+//       ],
+//     },
+//     { $set: { status: "Old" } }
+//   );
+//   res.send(new_year_assignment);
+// });
 
 router.delete("/:id", [isAuth, isTeacher], async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id))

@@ -1,8 +1,8 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const { notify } = require("../pusher/notify");
 const isAuth = require("../../middleware/isAuth");
 const { Discussion } = require("../../model/students/discussion");
-const mongoose = require("mongoose");
 
 const router = express.Router();
 

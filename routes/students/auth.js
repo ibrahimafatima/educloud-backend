@@ -1,5 +1,5 @@
-const express = require("express");
 const bcrypt = require("bcrypt");
+const express = require("express");
 const {
   StudentDetails,
   ValidateStudentAuth,
@@ -10,6 +10,7 @@ const router = express.Router();
 router.post("/register", async (req, res) => {
   const { error } = ValidateStudentAuth(req.body);
   if (error) return res.status(400).send(error.details[0].message);
+
   let student = await StudentDetails.findOne({
     registration_number: req.body.registration_number.trim(),
   });

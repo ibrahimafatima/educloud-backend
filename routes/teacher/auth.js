@@ -4,7 +4,6 @@ const {
   TeacherDetails,
   ValidateTeacherAuth,
 } = require("../../model/teachers/teachers");
-const { AdminAuth } = require("../../model/admin/auth");
 
 const router = express.Router();
 
@@ -35,6 +34,7 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   const { error } = ValidateTeacherAuth(req.body);
   if (error) return res.status(400).send(error.details[0].message);
+
   const teacher = await TeacherDetails.findOne({
     username: req.body.username.trim(),
   });

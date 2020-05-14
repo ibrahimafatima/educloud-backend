@@ -60,6 +60,7 @@ router.post("/", [isAuth, isAdmin], async (req, res) => {
   classToUpdate.isInCharge = true;
 
   //USE FAWN HERE LATER TO HANDLE THE TRANSACTION
+  //var task = Fawn.Task();
   await classToUpdate.save();
   const result = await newTeacher.save();
   res.send(result);

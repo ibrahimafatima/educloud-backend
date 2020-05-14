@@ -1,26 +1,28 @@
 const express = require("express");
+const { notify } = require("../pusher/notify");
+const isAuth = require("../../middleware/isAuth");
+const isTeacher = require("../../middleware/isTeacher");
+const { TeachersCourse } = require("../../model/teachers/courses");
 const {
   Assignment,
   ValidateAssignment,
 } = require("../../model/teachers/assignment");
-const { TeachersCourse } = require("../../model/teachers/courses");
-const isAuth = require("../../middleware/isAuth");
-const isTeacher = require("../../middleware/isTeacher");
-const { notify } = require("../pusher/notify");
 
 const router = express.Router();
 
 router.post("/", [isAuth, isTeacher], async (req, res) => {
   const { error } = ValidateAssignment(req.body);
   if (error) return res.status(400).send(error.details[0].message);
+
   const assignmentSize = await Assignment.find({
     $and: [
       { teacherID: req.adminToken.teacherID },
       { schoolSecretKey: req.adminToken.schoolSecretKey },
     ],
   });
-  if (assignmentSize.length >= 10)
+  if (assignmentSize.length >= 20)
     return res.status(400).send("Assignment book full, kindly empty it.");
+
   const verifyClass = await TeachersCourse.findOne({
     $and: [
       { className: req.body.className },
@@ -32,6 +34,7 @@ router.post("/", [isAuth, isTeacher], async (req, res) => {
     return res
       .status(400)
       .send(`You cannot post assignment to ${req.body.className}`);
+
   const newAssignment = new Assignment({
     title: req.body.title,
     aMessage: req.body.aMessage,
@@ -45,10 +48,10 @@ router.post("/", [isAuth, isTeacher], async (req, res) => {
     const school = req.adminToken.schoolName;
     notify(school, "assignment");
   });
-  res.send(result + " " + assignmentSize.length);
+  res.send(result);
 });
 
-router.get("/", [isAuth], async (req, res) => {
+router.get("/", isAuth, async (req, res) => {
   const assignment = await Assignment.find({
     $and: [
       { status: "New" },
@@ -61,7 +64,7 @@ router.get("/", [isAuth], async (req, res) => {
   res.send(assignment);
 });
 
-router.get("/student/:id", [isAuth], async (req, res) => {
+router.get("/student/:id", isAuth, async (req, res) => {
   const assignment = await Assignment.find({
     $and: [
       { status: "New" },
