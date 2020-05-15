@@ -1,8 +1,8 @@
 const express = require("express");
 const isAuth = require("../../middleware/isAuth");
+const { Exams } = require("../../model/exams/exams");
 const isTeacher = require("../../middleware/isTeacher");
 const { StudentDetails } = require("../../model/students/students");
-const { Exams } = require("../../model/exams/exams");
 const { Mark, ValidateMark } = require("../../model/teachers/mark");
 
 const router = express.Router();
@@ -75,7 +75,7 @@ router.get("/mark/:id", [isAuth], async (req, res) => {
     ]);
 });
 
-router.put("/:id", [isAuth, isTeacher], async (req, res) => {
+router.put("/update/:id", [isAuth, isTeacher], async (req, res) => {
   const { error } = ValidateMark(req.body);
   if (error) return res.status(400).send(error.details[0].message);
   const mark = await Mark.findByIdAndUpdate(
@@ -97,7 +97,7 @@ router.delete("/:id", [isAuth, isTeacher], async (req, res) => {
   res.send(result);
 });
 
-router.put("/", [isAuth, isTeacher], async (req, res) => {
+router.put("/next-year", [isAuth, isTeacher], async (req, res) => {
   const new_year_mark = await Mark.updateMany(
     { schoolSecretKey: req.adminToken.schoolSecretKey },
     { $set: { status: "Old" } }

@@ -1,16 +1,19 @@
 const express = require("express");
+//const Fawn = require("fawn");
+const mongoose = require("mongoose");
 const isAuth = require("../../middleware/isAuth");
 const isAdmin = require("../../middleware/isAdmin");
+const { Exams } = require("../../model/exams/exams");
 const isTeacher = require("../../middleware/isTeacher");
+const { AddClass } = require("../../model/admin/classes");
+const { Timetable } = require("../../model/teachers/timetable");
+const { TeacherDetails } = require("../../model/teachers/teachers");
 const {
   TeachersCourse,
   ValidateCourseAdded,
 } = require("../../model/teachers/courses");
-const { Exams } = require("../../model/exams/exams");
-const { Timetable } = require("../../model/teachers/timetable");
-const { AddClass } = require("../../model/admin/classes");
-const { TeacherDetails } = require("../../model/teachers/teachers");
-//const { TeachersCourse } = require("../../model/teachers/courses");
+
+//Fawn.init(mongoose);
 
 const router = express.Router();
 
@@ -18,7 +21,12 @@ router.post("/", [isAuth, isTeacher], async (req, res) => {
   const { error } = ValidateCourseAdded(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const class_name = await AddClass.findOne({ className: req.body.className });
+  const class_name = await AddClass.findOne({
+    $and: [
+      { className: req.body.className },
+      { schoolSecretKey: req.adminToken.schoolSecretKey },
+    ],
+  });
   if (!class_name) return res.status(400).send("Invalid class name");
 
   const course = await TeachersCourse.findOne({
@@ -50,6 +58,8 @@ router.post("/", [isAuth, isTeacher], async (req, res) => {
     ],
   });
 
+  //var task = Fawn.task();
+  //USE FAWN HERE FOR TRANSACTION
   teacher.numberOfSubject++;
   await teacher.save();
 
@@ -145,6 +155,7 @@ router.put("/:id", [isAuth, isTeacher], async (req, res) => {
 router.delete("/:id", [isAuth, isTeacher], async (req, res) => {
   const courses = await TeachersCourse.findById(req.params.id);
   if (!courses) return res.status(400).send("The course does not exist");
+
   const exams = await Exams.findOne({
     $and: [
       { className: courses.className },
@@ -172,8 +183,7 @@ router.delete("/:id", [isAuth, isTeacher], async (req, res) => {
       .send(
         "Update or delete the timetable for this subject before deleting it."
       );
-  const result = await courses.remove();
-  //decrease teacher number of subject by 1
+
   let teacher = await TeacherDetails.findOne({
     $and: [
       { teacherID: req.adminToken.teacherID },
@@ -181,6 +191,8 @@ router.delete("/:id", [isAuth, isTeacher], async (req, res) => {
     ],
   });
 
+  //USE FAWN HERE FOR TRANSACTION
+  const result = await courses.remove();
   teacher.numberOfSubject--;
   await teacher.save();
   res.send(result);

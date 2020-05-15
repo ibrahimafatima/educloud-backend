@@ -112,45 +112,46 @@ router.put("/status/:id", [isAuth, isTeacher], async (req, res) => {
   }
 });
 
-router.put("/:id", [isAuth, isTeacher, validateObjectId], async (req, res) => {
-  const { error } = ValidateExams(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+router.put(
+  "/update/:id",
+  [isAuth, isTeacher, validateObjectId],
+  async (req, res) => {
+    const { error } = ValidateExams(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
 
-  const classes = await TeachersCourse.findOne({
-    name: req.body.subject,
-    className: req.body.className,
-  });
-  if (!classes)
-    return res.status(400).send("Error, cannot update exam details");
-  if (classes.teacherID !== req.adminToken.teacherID)
-    return res
-      .status(401)
-      .send(
-        `You are not authorized to add ${req.body.subject} exam in ${req.body.className}`
-      );
-  const updatedExam = await Exams.findByIdAndUpdate(req.params.id, {
-    className: req.body.className,
-    exam_name: req.body.exam_name,
-    schedule_date: req.body.schedule_date,
-    schedule_time: req.body.schedule_time,
-    duration: req.body.duration,
-    subject: req.body.subject,
-  });
-  res.send(updatedExam);
+    const classes = await TeachersCourse.findOne({
+      name: req.body.subject,
+      className: req.body.className,
+    });
+    if (!classes)
+      return res.status(400).send("Error, cannot update exam details");
+    if (classes.teacherID !== req.adminToken.teacherID)
+      return res
+        .status(401)
+        .send(
+          `You are not authorized to add ${req.body.subject} exam in ${req.body.className}`
+        );
+    const updatedExam = await Exams.findByIdAndUpdate(req.params.id, {
+      className: req.body.className,
+      exam_name: req.body.exam_name,
+      schedule_date: req.body.schedule_date,
+      schedule_time: req.body.schedule_time,
+      duration: req.body.duration,
+      subject: req.body.subject,
+    });
+    res.send(updatedExam);
+  }
+);
+
+router.put("/next-year", [isAuth, isAdmin], async (req, res) => {
+  const new_year_exams = await Exams.updateMany(
+    {
+      $and: [{ schoolSecretKey: req.adminToken.schoolSecretKey }],
+    },
+    { $set: { status: "Old" } }
+  );
+  res.send(new_year_exams);
 });
-
-// router.put("/next-year", [isAuth, isTeacher], async (req, res) => {
-//   const new_year_assignment = await Assignment.updateMany(
-//     {
-//       $and: [
-//         { schoolSecretKey: req.adminToken.schoolSecretKey },
-//         { teacherID: req.adminToken.teacherID },
-//       ],
-//     },
-//     { $set: { status: "Old" } }
-//   );
-//   res.send(new_year_assignment);
-// });
 
 router.delete("/:id", [isAuth, isTeacher], async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id))

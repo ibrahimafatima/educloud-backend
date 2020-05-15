@@ -51,6 +51,15 @@ router.put("/update/:id", [isAuth, isTeacher], async (req, res) => {
   if (!isValidId) return res.send("Invalid id type");
   const { error } = ValidateStudentDetails(req.body);
   if (error) return res.status(400).send(error.details[0].message);
+
+  const student = await StudentDetails.findOne({
+    registration_number: req.body.registration_number,
+  });
+  if (student)
+    return res
+      .status(400)
+      .send("The student with this registration number is already added");
+
   const student = await StudentDetails.findByIdAndUpdate(
     req.params.id,
     {
