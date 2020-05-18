@@ -58,7 +58,7 @@ router.post("/", [isAuth, isAdmin], async (req, res) => {
 });
 
 //GETTING ALL PAYMENT DONE BY A STUDENT
-router.get("/:id", [isAuth], async (req, res) => {
+router.get("/get/:id", [isAuth], async (req, res) => {
   const student = await StudentDetails.findOne({
     $and: [
       { registration_number: req.params.id },

@@ -48,7 +48,7 @@ router.get("/", [isAuth], async (req, res) => {
 });
 
 //GET A PARTICULAR CLASS USING THE MONGODB _id
-router.get("/:id", [isAuth, isAdmin], async (req, res) => {
+router.get("/get/:id", [isAuth, isAdmin], async (req, res) => {
   const classes = await AddClass.findOne({
     _id: req.params.id,
   });
@@ -57,7 +57,7 @@ router.get("/:id", [isAuth, isAdmin], async (req, res) => {
 });
 
 //UPDATE A CLASS DETAILS
-router.put("/:id", [isAuth, isAdmin], async (req, res) => {
+router.put("/update/:id", [isAuth, isAdmin], async (req, res) => {
   const clas = await AddClass.findById(req.params.id);
   if (!clas) return res.status(404).send("Class not found");
 
@@ -83,59 +83,63 @@ router.put("/:id", [isAuth, isAdmin], async (req, res) => {
   res.send(classToUpdate);
 });
 
-router.delete("/:id", [isAuth, isAdmin, validaObjectId], async (req, res) => {
-  const clas = await AddClass.findById(req.params.id);
-  if (!clas) return res.status(404).send("Class not found");
-  const timetable = await Timetable.find({
-    $and: [
-      { className: clas.className },
-      { schoolSecretKey: req.adminToken.schoolSecretKey },
-    ],
-  });
-  if (timetable)
-    return res
-      .status(404)
-      .send(
-        "Remove all timetable where this class is added before deleting it."
-      );
-  const teacher = await TeacherDetails.find({
-    $and: [
-      { className: clas.className },
-      { schoolSecretKey: req.adminToken.schoolSecretKey },
-    ],
-  });
-  if (teacher)
-    return res
-      .status(404)
-      .send(
-        "Remove or update teachers info attached to this class before updating."
-      );
-  const course = await TeachersCourse.find({
-    $and: [
-      { className: clas.className },
-      { schoolSecretKey: req.adminToken.schoolSecretKey },
-    ],
-  });
-  if (course)
-    return res
-      .status(404)
-      .send(
-        "Remove or update courses where this class is added before deleting it."
-      );
-  const student = await StudentDetails.find({
-    $and: [
-      { class_name: clas.className },
-      { schoolSecretKey: req.adminToken.schoolSecretKey },
-    ],
-  });
-  if (student)
-    return res
-      .status(404)
-      .send(
-        "Remove or update students info where this class is added before deleting it."
-      );
-  const classToRemove = await AddClass.findByIdAndRemove(req.params.id);
-  res.send(classToRemove);
-});
+router.delete(
+  "/delete/:id",
+  [isAuth, isAdmin, validaObjectId],
+  async (req, res) => {
+    const clas = await AddClass.findById(req.params.id);
+    if (!clas) return res.status(404).send("Class not found");
+    const timetable = await Timetable.find({
+      $and: [
+        { className: clas.className },
+        { schoolSecretKey: req.adminToken.schoolSecretKey },
+      ],
+    });
+    if (timetable)
+      return res
+        .status(404)
+        .send(
+          "Remove all timetable where this class is added before deleting it."
+        );
+    const teacher = await TeacherDetails.find({
+      $and: [
+        { className: clas.className },
+        { schoolSecretKey: req.adminToken.schoolSecretKey },
+      ],
+    });
+    if (teacher)
+      return res
+        .status(404)
+        .send(
+          "Remove or update teachers info attached to this class before deleting."
+        );
+    const course = await TeachersCourse.find({
+      $and: [
+        { className: clas.className },
+        { schoolSecretKey: req.adminToken.schoolSecretKey },
+      ],
+    });
+    if (course)
+      return res
+        .status(404)
+        .send(
+          "Remove or update courses where this class is added before deleting it."
+        );
+    const student = await StudentDetails.find({
+      $and: [
+        { class_name: clas.className },
+        { schoolSecretKey: req.adminToken.schoolSecretKey },
+      ],
+    });
+    if (student)
+      return res
+        .status(404)
+        .send(
+          "Remove or update students info where this class is added before deleting it."
+        );
+    const classToRemove = await AddClass.findByIdAndRemove(req.params.id);
+    res.send(classToRemove);
+  }
+);
 
 module.exports = router;

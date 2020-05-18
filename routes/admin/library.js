@@ -37,13 +37,13 @@ router.get("/", [isAuth], async (req, res) => {
   res.send(allBook);
 });
 
-router.get("/:id", [isAuth], async (req, res) => {
+router.get("/get/:id", [isAuth], async (req, res) => {
   const oneBook = await Library.findById(req.params.id);
   if (!oneBook) return res.status(404).send("Book not found");
   res.send(oneBook);
 });
 
-router.put("/:id", [isAuth, isAdmin], async (req, res) => {
+router.put("/update/:id", [isAuth, isAdmin], async (req, res) => {
   const { error } = ValidateLibrary(req.body);
   if (error) return res.status(400).send(error.details[0].message);
   const book = await Library.findById(req.params.id);
@@ -62,11 +62,15 @@ router.put("/:id", [isAuth, isAdmin], async (req, res) => {
   res.send(updateBook);
 });
 
-router.delete("/:id", [isAuth, isAdmin, validateID], async (req, res) => {
-  const deleteBook = await Library.findById(req.params.id);
-  if (!deleteBook) return res.status(400).send("The book does not exist");
-  const result = await deleteBook.remove();
-  res.send(result);
-});
+router.delete(
+  "/delete/:id",
+  [isAuth, isAdmin, validateID],
+  async (req, res) => {
+    const deleteBook = await Library.findById(req.params.id);
+    if (!deleteBook) return res.status(400).send("The book does not exist");
+    const result = await deleteBook.remove();
+    res.send(result);
+  }
+);
 
 module.exports = router;

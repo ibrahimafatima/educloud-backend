@@ -52,19 +52,22 @@ router.put("/update/:id", [isAuth, isTeacher], async (req, res) => {
   const { error } = ValidateStudentDetails(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const student = await StudentDetails.findOne({
-    registration_number: req.body.registration_number,
-  });
-  if (student)
+  const studentInfo = await StudentDetails.findById(req.params.id);
+  if (!studentInfo) return res.status(400).send("No such student found!");
+
+  if (studentInfo.registration_number !== req.body.registration_number)
     return res
       .status(400)
-      .send("The student with this registration number is already added");
+      .send("You cannot update a registration number. Delete an add back!");
+
+  if (studentInfo.class_name !== req.body.class_name)
+    return res.status(400).send("You cannot update student class name");
 
   const student = await StudentDetails.findByIdAndUpdate(
     req.params.id,
     {
-      registration_number: req.body.registration_number,
       class_name: req.body.class_name,
+      name: req.body.name,
       term: req.body.term,
     },
     { new: true }
@@ -81,7 +84,7 @@ router.get("/", [isAuth], async (req, res) => {
   res.send(students);
 });
 
-router.get("/:id", [isAuth], async (req, res) => {
+router.get("/classname/:id", [isAuth], async (req, res) => {
   const students = await StudentDetails.find({
     $and: [
       { class_name: req.params.id },

@@ -50,7 +50,7 @@ router.post("/:id", [isAuth, isTeacher], async (req, res) => {
 });
 
 //MODIFICATION MADE HERE_ _ _ _ _
-router.get("/:id", [isAuth], async (req, res) => {
+router.get("/get/:id", [isAuth], async (req, res) => {
   const marks = await Mark.find({
     $and: [
       { status: "New" },
@@ -90,7 +90,7 @@ router.put("/update/:id", [isAuth, isTeacher], async (req, res) => {
   res.send(mark);
 });
 
-router.delete("/:id", [isAuth, isTeacher], async (req, res) => {
+router.delete("/delete/:id", [isAuth, isTeacher], async (req, res) => {
   const mark = await Mark.findById(req.params.id);
   if (!mark) return res.status(404).send("The mark does not exist");
   const result = await mark.remove();

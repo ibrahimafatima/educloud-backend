@@ -68,16 +68,16 @@ router.post("/register", async (req, res) => {
   res.header("x-auth-token", token).send(token);
 });
 
-router.get("/:id", [isAuth], async (req, res) => {
-  const admin = await AdminAuth.findOne({
-    $and: [
-      { _id: req.params.id },
-      { schoolSecretKey: req.adminToken.schoolSecretKey },
-    ],
-  });
-  if (!admin) return res.status(404).send("Admin not found");
-  res.send(admin);
-});
+// router.get("/:id", [isAuth], async (req, res) => {
+//   const admin = await AdminAuth.findOne({
+//     $and: [
+//       { _id: req.params.id },
+//       { schoolSecretKey: req.adminToken.schoolSecretKey },
+//     ],
+//   });
+//   if (!admin) return res.status(404).send("Admin not found");
+//   res.send(admin);
+// });
 
 router.post("/confirm-account", async (req, res) => {
   const adminUser = await AdminAuth.findOne({

@@ -37,14 +37,16 @@ router.post("/", [isAuth, isAdmin], async (req, res) => {
   if (teacher2) return res.status(400).send("The username is already in use!");
 
   const classToUpdate = await AddClass.findOne({
-    className: req.body.className,
+    $and: [
+      { className: req.body.className },
+      { schoolSecretKey: req.adminToken.schoolSecretKey },
+    ],
   });
 
-  if (classToUpdate.className !== "None" && classToUpdate.isInCharge) {
+  if (classToUpdate.className !== "None" && classToUpdate.isInCharge)
     return res
       .status(400)
       .send(`The class is already in charge by another teacher`);
-  }
 
   const newTeacher = new TeacherDetails({
     role: "Teacher",
@@ -60,7 +62,13 @@ router.post("/", [isAuth, isAdmin], async (req, res) => {
   classToUpdate.isInCharge = true;
 
   //USE FAWN HERE LATER TO HANDLE THE TRANSACTION
-  //var task = Fawn.Task();
+  // var task = Fawn.Task();
+  // try {
+  //   task.save("classes", classToUpdate).save("teachers", newTeacher).run();
+  //   res.send(result);
+  // } catch (ex) {
+  //   res.status(400).send("Cannot update teacher details.");
+  // }
   await classToUpdate.save();
   const result = await newTeacher.save();
   res.send(result);
@@ -76,7 +84,7 @@ router.get("/", [isAuth], async (req, res) => {
 });
 
 //GET A TEACHER BY IT'S TEACHERID
-router.get("/:id", [isAuth], async (req, res) => {
+router.get("/get/:id", [isAuth], async (req, res) => {
   const teacher = await TeacherDetails.findOne({
     $and: [
       { teacherID: req.params.id },
@@ -102,71 +110,89 @@ router.get("/teacher/:id", [isAuth], async (req, res) => {
 });
 
 //UPDATE A TEACHER DETAILS
-router.put("/:id", [isAuth, isAdmin, validateObjectId], async (req, res) => {
-  const { error } = validateTeacherDetails(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+router.put(
+  "/update/:id",
+  [isAuth, isAdmin, validateObjectId],
+  async (req, res) => {
+    const { error } = validateTeacherDetails(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
 
-  //DISALLOW USER TO UPDATE THE TEACHERID
-  const t = await TeacherDetails.findById(req.params.id);
-  if (t.teacherID !== req.body.teacherID)
-    return res.status(400).send("You cannot update teacherID...");
+    //DISALLOW USER TO UPDATE THE TEACHERID
+    const t = await TeacherDetails.findById(req.params.id);
+    if (t.teacherID !== req.body.teacherID)
+      return res.status(400).send("You cannot update teacherID...");
 
-  const teacher = await TeacherDetails.findByIdAndUpdate(
-    req.params.id,
-    {
-      teacherID: req.body.teacherID,
-      username: req.body.username,
-      className: req.body.className,
-      lastUpdatedBy: req.adminToken.username,
-    },
-    { new: true }
-  );
-  res.send(teacher);
-});
+    const classToUpdate = await AddClass.findOne({
+      $and: [
+        { className: req.body.className },
+        { schoolSecretKey: req.adminToken.schoolSecretKey },
+      ],
+    });
+    if (classToUpdate.isInCharge && req.body.className !== t.className)
+      return res
+        .status(400)
+        .send(`The class is already in charge by another teacher`);
 
-router.delete("/:id", [isAuth, isAdmin, validateObjectId], async (req, res) => {
-  const teacherToDelete = await TeacherDetails.findById(req.params.id);
-  if (!teacherToDelete) return res.status(404).send("Teacher not found!");
-  const course = await TeachersCourse.findOne({
-    teacherID: teacherToDelete.teacherID,
-  });
-  if (course)
-    return res
-      .status(404)
-      .send(
-        "Admin or Teacher should clear all his courses before you can delete"
-      );
-  const timetable = await Timetable.findOne({
-    teacherID: teacherToDelete.teacherID,
-  });
-  if (timetable)
-    return res
-      .status(404)
-      .send(
-        "Admin or Teacher should clear all his activities in timetable before you can delete"
-      );
-  const exams = await Exams.findOne({
-    teacherID: teacherToDelete.teacherID,
-  });
-  if (exams)
-    return res
-      .status(404)
-      .send(
-        "Admin or Teacher should clear all exams scheduled before you can delete"
-      );
-  const assignment = await Assignment.findOne({
-    teacherID: teacherToDelete.teacherID,
-  });
-  if (assignment)
-    return res
-      .status(404)
-      .send(
-        "Admin or Teacher should clear all assignment posted before you can delete"
-      );
+    const teacher = await TeacherDetails.findByIdAndUpdate(
+      req.params.id,
+      {
+        username: req.body.username,
+        className: req.body.className,
+        lastUpdatedBy: req.adminToken.username,
+      },
+      { new: true }
+    );
+    res.send(teacher);
+  }
+);
 
-  //Exam, Assignment, Timetable
-  const teacher = await TeacherDetails.findByIdAndRemove(req.params.id);
-  res.send(teacher);
-});
+router.delete(
+  "/delete/:id",
+  [isAuth, isAdmin, validateObjectId],
+  async (req, res) => {
+    const teacherToDelete = await TeacherDetails.findById(req.params.id);
+    if (!teacherToDelete) return res.status(404).send("Teacher not found!");
+    const course = await TeachersCourse.findOne({
+      teacherID: teacherToDelete.teacherID,
+    });
+    if (course)
+      return res
+        .status(404)
+        .send(
+          "Admin or Teacher should clear all his courses before you can delete"
+        );
+    const timetable = await Timetable.findOne({
+      teacherID: teacherToDelete.teacherID,
+    });
+    if (timetable)
+      return res
+        .status(404)
+        .send(
+          "Admin or Teacher should clear all his activities in timetable before you can delete"
+        );
+    const exams = await Exams.findOne({
+      teacherID: teacherToDelete.teacherID,
+    });
+    if (exams)
+      return res
+        .status(404)
+        .send(
+          "Admin or Teacher should clear all exams scheduled before you can delete"
+        );
+    const assignment = await Assignment.findOne({
+      teacherID: teacherToDelete.teacherID,
+    });
+    if (assignment)
+      return res
+        .status(404)
+        .send(
+          "Admin or Teacher should clear all assignment posted before you can delete"
+        );
+
+    //Exam, Assignment, Timetable
+    const teacher = await TeacherDetails.findByIdAndRemove(req.params.id);
+    res.send(teacher);
+  }
+);
 
 module.exports = router;

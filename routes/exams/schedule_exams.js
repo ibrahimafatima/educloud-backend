@@ -20,7 +20,11 @@ router.post("/", [isAuth, isTeacher], async (req, res) => {
     className: req.body.className,
   });
   if (!classes)
-    return res.status(400).send("Error, cannot update exam details");
+    return res
+      .status(400)
+      .send(
+        "Cannot update exam details. Check the match of subject and class."
+      );
   if (classes.teacherID !== req.adminToken.teacherID)
     return res
       .status(401)
@@ -43,7 +47,6 @@ router.post("/", [isAuth, isTeacher], async (req, res) => {
     const school = req.adminToken.schoolName;
     notify(school, "exam");
   });
-  //res.send([result, { term: students[0].term }]);
   res.send(result);
 });
 
@@ -82,7 +85,7 @@ router.get("/admin", [isAuth, isAdmin], async (req, res) => {
   res.send(exams);
 });
 
-router.get("/:id", [isAuth, validateObjectId], async (req, res) => {
+router.get("/get/:id", [isAuth, validateObjectId], async (req, res) => {
   const exam = await Exams.findById(req.params.id);
   if (!exam) return res.status(404).send("No exam found with given id");
   res.send(exam);
@@ -153,7 +156,7 @@ router.put("/next-year", [isAuth, isAdmin], async (req, res) => {
   res.send(new_year_exams);
 });
 
-router.delete("/:id", [isAuth, isTeacher], async (req, res) => {
+router.delete("/delete/:id", [isAuth, isTeacher], async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id))
     return res.status(400).send("Invalid id cannot update");
   const examToRemove = await Exams.findByIdAndRemove(req.params.id);

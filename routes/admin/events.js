@@ -34,13 +34,13 @@ router.get("/", [isAuth], async (req, res) => {
   res.send(event);
 });
 
-router.get("/:id", [isAuth, validateObjectId], async (req, res) => {
+router.get("/get/:id", [isAuth, validateObjectId], async (req, res) => {
   const notice = await Event.findById(req.params.id);
   if (!notice) return res.status(404).send("No notice found");
   res.send(notice);
 });
 
-router.put("/:id", [isAuth, isAdmin], async (req, res) => {
+router.put("/update/:id", [isAuth, isAdmin], async (req, res) => {
   const { error } = ValidateEvent(req.body);
   if (error) return res.status(400).send(error.details[0].message);
   const result = await Event.findByIdAndUpdate(
@@ -54,7 +54,7 @@ router.put("/:id", [isAuth, isAdmin], async (req, res) => {
   res.send(result);
 });
 
-router.delete("/:id", [isAuth, isAdmin], async (req, res) => {
+router.delete("/delete/:id", [isAuth, isAdmin], async (req, res) => {
   const deletedEvent = await Event.findByIdAndRemove(req.params.id);
   res.send(deletedEvent);
 });

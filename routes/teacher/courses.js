@@ -95,7 +95,7 @@ router.get("/byID/:id", [isAuth], async (req, res) => {
   res.send(course);
 });
 
-router.get("/:id", [isAuth], async (req, res) => {
+router.get("/teacherID/:id", [isAuth], async (req, res) => {
   const course = await TeachersCourse.find({
     $and: [
       { teacherID: req.params.id },
@@ -106,7 +106,7 @@ router.get("/:id", [isAuth], async (req, res) => {
   res.send(course);
 });
 
-router.put("/:id", [isAuth, isTeacher], async (req, res) => {
+router.put("/update/:id", [isAuth, isTeacher], async (req, res) => {
   const { error } = ValidateCourseAdded(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
@@ -152,7 +152,7 @@ router.put("/:id", [isAuth, isTeacher], async (req, res) => {
   res.send(course);
 });
 
-router.delete("/:id", [isAuth, isTeacher], async (req, res) => {
+router.delete("/delete/:id", [isAuth, isTeacher], async (req, res) => {
   const courses = await TeachersCourse.findById(req.params.id);
   if (!courses) return res.status(400).send("The course does not exist");
 

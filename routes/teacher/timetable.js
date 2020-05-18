@@ -94,7 +94,7 @@ router.get("/admin", [isAuth, isAdmin], async (req, res) => {
   res.send(teacherTable);
 });
 
-router.get("/:id", [isAuth, validateID], async (req, res) => {
+router.get("/timetable/:id", [isAuth, validateID], async (req, res) => {
   const teacherTable = await Timetable.findById(req.params.id);
   if (!teacherTable)
     return res.status(404).send("No subject found in timetable");
@@ -114,7 +114,7 @@ router.get("/:id", [isAuth, validateID], async (req, res) => {
 //   res.send(teacherTable);
 // })
 
-router.put("/:id", [isAuth, isTeacher], async (req, res) => {
+router.put("/update/:id", [isAuth, isTeacher], async (req, res) => {
   const course = await TeachersCourse.findOne({
     $and: [
       { name: req.body.name },
@@ -145,11 +145,15 @@ router.put("/:id", [isAuth, isTeacher], async (req, res) => {
   res.send(tableUpdate);
 });
 
-router.delete("/:id", [isAuth, isTeacher, validateID], async (req, res) => {
-  const table = await Timetable.findById(req.params.id);
-  if (!table) return res.status(400).send("The course does not exist");
-  const result = await table.remove();
-  res.send(result);
-});
+router.delete(
+  "/delete/:id",
+  [isAuth, isTeacher, validateID],
+  async (req, res) => {
+    const table = await Timetable.findById(req.params.id);
+    if (!table) return res.status(400).send("The course does not exist");
+    const result = await table.remove();
+    res.send(result);
+  }
+);
 
 module.exports = router;

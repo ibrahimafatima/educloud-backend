@@ -76,7 +76,7 @@ router.get("/student/:id", isAuth, async (req, res) => {
   res.send(assignment);
 });
 
-router.get("/:id", [isAuth], async (req, res) => {
+router.get("/teacherID/:id", isAuth, async (req, res) => {
   const assignment = await Assignment.find({
     $and: [
       { status: "New" },
@@ -88,7 +88,7 @@ router.get("/:id", [isAuth], async (req, res) => {
   res.send(assignment);
 });
 
-router.delete("/:id", [isAuth, isTeacher], async (req, res) => {
+router.delete("/delete/:id", [isAuth, isTeacher], async (req, res) => {
   const assignment = await Assignment.findById(req.params.id);
   if (!assignment) return res.status(400).send("The assignment does not exist");
   const result = await assignment.remove();
