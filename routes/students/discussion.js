@@ -7,6 +7,7 @@ const { Discussion } = require("../../model/students/discussion");
 const router = express.Router();
 
 router.post("/teacher/:id", isAuth, async (req, res) => {
+  if (req.body.message.trim() === "") return;
   const payload = {
     message: req.body.message.trim(),
     sender: req.adminToken.username,
