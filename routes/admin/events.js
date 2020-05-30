@@ -2,6 +2,7 @@ const express = require("express");
 const { notify } = require("../pusher/notify");
 const isAuth = require("../../middleware/isAuth");
 const isAdmin = require("../../middleware/isAdmin");
+const { StudentDetails } = require("../../model/students/students");
 const { Event, ValidateEvent } = require("../../model/admin/events");
 const validateObjectId = require("../../middleware/validateObjectId");
 
@@ -15,6 +16,7 @@ router.post("/", [isAuth, isAdmin], async (req, res) => {
     posted_by: req.adminToken.username,
     event_date: req.body.event_date,
     event_message: req.body.event_message,
+    schoolName: req.adminToken.schoolName,
     schoolSecretKey: req.adminToken.schoolSecretKey,
   });
   const result = await event.save((err, obj) => {
@@ -30,6 +32,12 @@ router.get("/", [isAuth], async (req, res) => {
   })
     .limit(6)
     .sort("-post_date");
+  if (!event) return res.status(400).send("Error while getting event...");
+  res.send(event);
+});
+
+router.get("/all-events", async (req, res) => {
+  const event = await Event.find().limit(3).sort("-post_date");
   if (!event) return res.status(400).send("Error while getting event...");
   res.send(event);
 });

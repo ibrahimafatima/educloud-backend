@@ -6,36 +6,37 @@ const eventSchema = new mongoose.Schema({
   posted_by: {
     type: String,
     minlength: 3,
-    maxlength: 30
+    maxlength: 30,
   },
 
   event_date: {
     type: Date,
-    required: true
+    required: true,
   },
   post_date: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   event_message: {
     type: String,
     minlength: 5,
     maxlength: 255,
-    required: true
+    required: true,
   },
   schoolSecretKey: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
+  schoolName: {
+    type: String,
+    required: true,
+  },
 });
 
 function validateEvent(events) {
   const schema = Joi.object({
     event_date: Joi.required(),
-    event_message: Joi.string()
-      .min(5)
-      .max(255)
-      .required()
+    event_message: Joi.string().min(5).max(255).required(),
   });
   return schema.validate(events);
 }

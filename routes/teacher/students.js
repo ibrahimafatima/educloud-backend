@@ -36,7 +36,7 @@ router.post("/", [isAuth, isTeacher], async (req, res) => {
     name: req.body.name,
     registration_number: req.body.registration_number,
     schoolSecretKey: req.adminToken.schoolSecretKey,
-    class_name: req.adminToken.className,
+    class_name: req.body.class_name,
     term: req.body.term,
     schoolName: req.adminToken.schoolName,
     role: "Student",
