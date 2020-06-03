@@ -37,7 +37,7 @@ router.get("/", [isAuth], async (req, res) => {
 });
 
 router.get("/all-events", async (req, res) => {
-  const event = await Event.find().limit(3).sort("-post_date");
+  const event = await Event.find().limit(5).sort("-post_date");
   if (!event) return res.status(400).send("Error while getting event...");
   res.send(event);
 });

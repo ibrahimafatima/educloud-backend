@@ -54,6 +54,10 @@ const examSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  schoolName: {
+    type: String,
+    required: true,
+  },
 });
 
 function validateExams(exam) {

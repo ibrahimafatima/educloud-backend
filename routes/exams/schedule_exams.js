@@ -41,6 +41,7 @@ router.post("/", [isAuth, isTeacher], async (req, res) => {
     duration: req.body.duration,
     teacherID: req.adminToken.teacherID,
     state: "Pending",
+    schoolName: req.adminToken.schoolName,
     schoolSecretKey: req.adminToken.schoolSecretKey,
   });
   const result = await newExam.save((err, obj) => {
@@ -83,6 +84,12 @@ router.get("/admin", [isAuth, isAdmin], async (req, res) => {
   }).sort("-schedule_date");
   if (!exams) return res.status(404).send("No exam was found");
   res.send(exams);
+});
+
+router.get("/all-exams", async (req, res) => {
+  const allExams = await Exams.find().limit(5).sort("-post_date");
+  if (!allExams) return res.status(404).send("No exams found");
+  res.send(allExams);
 });
 
 router.get("/get/:id", [isAuth, validateObjectId], async (req, res) => {
