@@ -23,6 +23,8 @@ const term = require("../routes/admin/term");
 const classe = require("../routes/admin/school_class");
 const level = require("../routes/admin/level");
 const newsfeed = require("../routes/newsfeed/newsfeed");
+const comment = require("../routes/newsfeed/comment");
+const like = require("../routes/newsfeed/like");
 
 module.exports = function (app) {
   app.use(express.json());
@@ -45,6 +47,8 @@ module.exports = function (app) {
   app.use("/api/teacher/assignment", assignment);
   app.use("/api/student/message", chat);
   app.use("/api/newsfeed", newsfeed);
+  app.use("/api/like", like);
+  app.use("/api/comment", comment);
   app.use("/api/discussion", discussion);
   app.use("/api/term", term);
   app.use("/api/classe", classe);

@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
 mongoose.set("useCreateIndex", true);
-const Joi = require("@hapi/joi");
-Joi.objectId = require("joi-objectid")(Joi);
 
 const newsfeedSchema = new mongoose.Schema({
   post_date: {

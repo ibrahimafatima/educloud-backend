@@ -177,3 +177,70 @@
 {"message":"Connected to mongodb://localhost/educloud","level":"info"}
 {"message":"Connected to mongodb://localhost/educloud","level":"info"}
 {"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"errors":{"commentText":{"message":"Path `commentText` is required.","name":"ValidatorError","properties":{"message":"Path `commentText` is required.","type":"required","path":"commentText"},"kind":"required","path":"commentText"}},"_message":"comments validation failed","message":"comments validation failed: commentText: Path `commentText` is required.comments validation failed: commentText: Path `commentText` is required.","name":"ValidationError","level":"error","stack":"ValidationError: comments validation failed: commentText: Path `commentText` is required.\n    at new ValidationError (E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\error\\validation.js:31:11)\n    at model.Document.invalidate (E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\document.js:2481:32)\n    at p.doValidate.skipSchemaValidators (E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\document.js:2330:17)\n    at E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\schematype.js:1064:9\n    at _combinedTickCallback (internal/process/next_tick.js:132:7)\n    at process._tickCallback (internal/process/next_tick.js:181:9)"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"errors":{"id":{"message":"Path `id` is required.","name":"ValidatorError","properties":{"message":"Path `id` is required.","type":"required","path":"id"},"kind":"required","path":"id"}},"_message":"comments validation failed","message":"comments validation failed: id: Path `id` is required.comments validation failed: id: Path `id` is required.","name":"ValidationError","level":"error","stack":"ValidationError: comments validation failed: id: Path `id` is required.\n    at new ValidationError (E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\error\\validation.js:31:11)\n    at model.Document.invalidate (E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\document.js:2481:32)\n    at p.doValidate.skipSchemaValidators (E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\document.js:2330:17)\n    at E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\schematype.js:1064:9\n    at _combinedTickCallback (internal/process/next_tick.js:132:7)\n    at process._tickCallback (internal/process/next_tick.js:181:9)"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"errors":{"id":{"message":"Path `id` is required.","name":"ValidatorError","properties":{"message":"Path `id` is required.","type":"required","path":"id"},"kind":"required","path":"id"}},"_message":"comments validation failed","message":"comments validation failed: id: Path `id` is required.comments validation failed: id: Path `id` is required.","name":"ValidationError","level":"error","stack":"ValidationError: comments validation failed: id: Path `id` is required.\n    at new ValidationError (E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\error\\validation.js:31:11)\n    at model.Document.invalidate (E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\document.js:2481:32)\n    at p.doValidate.skipSchemaValidators (E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\document.js:2330:17)\n    at E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\schematype.js:1064:9\n    at _combinedTickCallback (internal/process/next_tick.js:132:7)\n    at process._tickCallback (internal/process/next_tick.js:181:9)"}
+{"errors":{"id":{"message":"Path `id` is required.","name":"ValidatorError","properties":{"message":"Path `id` is required.","type":"required","path":"id"},"kind":"required","path":"id"}},"_message":"comments validation failed","message":"comments validation failed: id: Path `id` is required.comments validation failed: id: Path `id` is required.","name":"ValidationError","level":"error","stack":"ValidationError: comments validation failed: id: Path `id` is required.\n    at new ValidationError (E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\error\\validation.js:31:11)\n    at model.Document.invalidate (E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\document.js:2481:32)\n    at p.doValidate.skipSchemaValidators (E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\document.js:2330:17)\n    at E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\schematype.js:1064:9\n    at _combinedTickCallback (internal/process/next_tick.js:132:7)\n    at process._tickCallback (internal/process/next_tick.js:181:9)"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"name":"MongoNetworkError","level":"error","message":"failed to connect to server [localhost:27017] on first connect [MongoNetworkError: connect ECONNREFUSED 127.0.0.1:27017]failed to connect to server [localhost:27017] on first connect [MongoNetworkError: connect ECONNREFUSED 127.0.0.1:27017]","stack":"MongoNetworkError: failed to connect to server [localhost:27017] on first connect [MongoNetworkError: connect ECONNREFUSED 127.0.0.1:27017]\n    at Pool.<anonymous> (E:\\Set Up\\cmder\\educloud\\node_modules\\mongodb\\lib\\core\\topologies\\server.js:433:11)\n    at emitOne (events.js:116:13)\n    at Pool.emit (events.js:211:7)\n    at createConnection (E:\\Set Up\\cmder\\educloud\\node_modules\\mongodb\\lib\\core\\connection\\pool.js:577:14)\n    at connect (E:\\Set Up\\cmder\\educloud\\node_modules\\mongodb\\lib\\core\\connection\\pool.js:1007:11)\n    at makeConnection (E:\\Set Up\\cmder\\educloud\\node_modules\\mongodb\\lib\\core\\connection\\connect.js:31:7)\n    at callback (E:\\Set Up\\cmder\\educloud\\node_modules\\mongodb\\lib\\core\\connection\\connect.js:247:5)\n    at Socket.err (E:\\Set Up\\cmder\\educloud\\node_modules\\mongodb\\lib\\core\\connection\\connect.js:276:7)\n    at Object.onceWrapper (events.js:315:30)\n    at emitOne (events.js:116:13)\n    at Socket.emit (events.js:211:7)\n    at emitErrorNT (internal/streams/destroy.js:66:8)\n    at _combinedTickCallback (internal/process/next_tick.js:139:11)\n    at process._tickCallback (internal/process/next_tick.js:181:9)"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"level":"error","message":"Post.save is not a functionPost.save is not a function","stack":"TypeError: Post.save is not a function\n    at router.post (E:\\Set Up\\cmder\\educloud\\routes\\newsfeed\\like.js:21:29)\n    at <anonymous>"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
