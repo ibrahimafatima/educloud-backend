@@ -14,7 +14,7 @@ router.post("/teacher/:id", isAuth, async (req, res) => {
     classe:
       req.adminToken.role === "Teacher"
         ? req.params.id
-        : req.adminToken.class_name,
+        : req.adminToken.className,
     schoolName: req.adminToken.schoolName,
     schoolSecretKey: req.adminToken.schoolSecretKey,
     timestamp: new mongoose.Types.ObjectId().getTimestamp(),
@@ -30,7 +30,7 @@ router.get("/teacher/:id", isAuth, async (req, res) => {
     classe:
       req.adminToken.role === "Teacher"
         ? req.params.id
-        : req.adminToken.class_name,
+        : req.adminToken.className,
     schoolSecretKey: req.adminToken.schoolSecretKey,
   })
     .sort("date")

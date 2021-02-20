@@ -13,7 +13,6 @@ const chatSchema = new mongoose.Schema({
   },
   classe: {
     type: String,
-    required: true,
   },
   schoolName: {
     type: String,

@@ -11,7 +11,7 @@ router.post("/", isAuth, async (req, res) => {
   const payload = {
     message: req.body.message.trim(),
     sender: req.adminToken.username,
-    classe: req.adminToken.class_name,
+    classe: req.adminToken.className,
     schoolName: req.adminToken.schoolName,
     schoolSecretKey: req.adminToken.schoolSecretKey,
     timestamp: new mongoose.Types.ObjectId().getTimestamp(),
@@ -24,7 +24,7 @@ router.post("/", isAuth, async (req, res) => {
 
 router.get("/", isAuth, async (req, res) => {
   const chat_data = await Chat.find({
-    classe: req.adminToken.class_name,
+    classe: req.adminToken.className,
     schoolSecretKey: req.adminToken.schoolSecretKey,
   })
     .sort("date")
