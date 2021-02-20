@@ -4,7 +4,7 @@ const isStudent = require("../../middleware/isStudent");
 const {
   StudentDetails,
   ValidateStudentUpdate,
-} = require("../../model/students/students");
+} = require("../../model/students/students_managment");
 
 const router = express.Router();
 

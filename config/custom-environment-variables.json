@@ -1,4 +1,5 @@
 {
   "private_key": "edu_private_key",
-  "db": "db"
+  "db": "db",
+  "mail_password": "mail"
 }

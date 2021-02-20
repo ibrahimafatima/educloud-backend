@@ -27,4 +27,4 @@ function validateLevel(level) {
 }
 
 module.exports.validateLevel = validateLevel;
-module.exports.level = level;
+module.exports.Level = level;

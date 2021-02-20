@@ -16,22 +16,22 @@ router.post("/", [isAuth, isTeacher], async (req, res) => {
   const { error } = ValidateTimetable(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const timeCourse = await Timetable.findOne({
+  const timetableByClass = await Timetable.findOne({
     $and: [
       { className: req.body.className },
-      { name: req.body.name },
+      { name: req.body.name.toUpperCase() },
       { startTime: req.body.startTime },
       { endTime: req.body.endTime },
       { day: req.body.day },
-      { teacherID: req.adminToken.teacherID },
+      { registrationID: req.adminToken.registrationID },
       { schoolSecretKey: req.adminToken.schoolSecretKey },
     ],
   });
-  if (timeCourse)
-    return res.status(400).send("This course is already added to time table");
+  if (timetableByClass)
+    return res.status(400).send("This course is already added to timetable");
   const course = await TeachersCourse.findOne({
     $and: [
-      { name: req.body.name },
+      { name: req.body.name.toUpperCase() },
       { className: req.body.className },
       { schoolSecretKey: req.adminToken.schoolSecretKey },
     ],
@@ -40,18 +40,18 @@ router.post("/", [isAuth, isTeacher], async (req, res) => {
     return res
       .status(400)
       .send("Make sure you select the right class and subject");
-  if (course.teacherID !== req.adminToken.teacherID)
+  if (course.registrationID !== req.adminToken.registrationID)
     res
       .status(400)
       .send(`You dont teach ${req.body.name} in ${req.body.className}`);
   const addTimetable = new Timetable({
     className: req.body.className,
-    name: req.body.name,
+    name: req.body.name.toUpperCase(),
     day: req.body.day,
     startTime: req.body.startTime,
     endTime: req.body.endTime,
-    teacherID: req.adminToken.teacherID,
-    teacherUsername: req.adminToken.username,
+    registrationID: req.adminToken.registrationID,
+    username: req.adminToken.username,
     schoolSecretKey: req.adminToken.schoolSecretKey,
   });
   const result = await addTimetable.save();
@@ -60,38 +60,38 @@ router.post("/", [isAuth, isTeacher], async (req, res) => {
 
 //for the teacher
 router.get("/teacher", [isAuth, isTeacher], async (req, res) => {
-  const teacherTable = await Timetable.find({
+  const teacherTimeTable = await Timetable.find({
     $and: [
-      { teacherID: req.adminToken.teacherID },
+      { registrationID: req.adminToken.registrationID },
       { schoolSecretKey: req.adminToken.schoolSecretKey },
     ],
   }).sort("day");
-  if (!teacherTable)
+  if (!teacherTimeTable)
     return res.status(404).send("No subject found in timetable");
-  res.send(teacherTable);
+  res.send(teacherTimeTable);
 });
 
 //for the student
 router.get("/student", [isAuth, isStudent], async (req, res) => {
-  const teacherTable = await Timetable.find({
+  const studentTimeTable = await Timetable.find({
     $and: [
-      { className: req.adminToken.class_name },
+      { className: req.adminToken.className },
       { schoolSecretKey: req.adminToken.schoolSecretKey },
     ],
   }).sort("day");
-  if (!teacherTable)
+  if (!studentTimeTable)
     return res.status(404).send("No subject found in timetable");
-  res.send(teacherTable);
+  res.send(studentTimeTable);
 });
 
 //for admin
 router.get("/admin", [isAuth, isAdmin], async (req, res) => {
-  const teacherTable = await Timetable.find({
-    $and: [{ schoolSecretKey: req.adminToken.schoolSecretKey }],
+  const adminTimeTable = await Timetable.find({
+    schoolSecretKey: req.adminToken.schoolSecretKey,
   }).sort("day");
-  if (!teacherTable)
+  if (!adminTimeTable)
     return res.status(404).send("No subject found in timetable");
-  res.send(teacherTable);
+  res.send(adminTimeTable);
 });
 
 router.get("/timetable/:id", [isAuth, validateID], async (req, res) => {
@@ -105,7 +105,7 @@ router.get("/timetable/:id", [isAuth, validateID], async (req, res) => {
 // router.get('/student', [isAuth], async (req, res) => {
 //   const teacherTable = await Timetable.find({
 //     $and: [
-//       { teacherID: req.adminToken.teacherID },
+//       { registrationID: req.adminToken.registrationID },
 //       { schoolSecretKey: req.adminToken.schoolSecretKey }
 //     ]
 //   });
@@ -126,7 +126,7 @@ router.put("/update/:id", [isAuth, isTeacher], async (req, res) => {
     return res
       .status(400)
       .send("Make sure you select the right class and subject");
-  if (course.teacherID !== req.adminToken.teacherID)
+  if (course.registrationID !== req.adminToken.registrationID)
     res
       .status(400)
       .send(`You dont teach ${req.body.name} in ${req.body.className}`);

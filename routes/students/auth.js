@@ -1,26 +1,28 @@
-const bcrypt = require("bcrypt");
 const express = require("express");
+const { hash, unhash } = require("../../utilities/hashed");
 const {
   StudentDetails,
-  ValidateStudentAuth,
-} = require("../../model/students/students");
+  validateStudentLogin,
+} = require("../../model/students/students_managment");
 
 const router = express.Router();
 
 router.post("/register", async (req, res) => {
-  const { error } = ValidateStudentAuth(req.body);
+  const { error } = validateStudentLogin(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
   let student = await StudentDetails.findOne({
-    registration_number: req.body.registration_number.trim(),
+    $and: [
+      { username: req.body.username.trim() },
+      { registrationID: req.body.registrationID.trim() },
+    ],
   });
   if (!student) return res.status(400).send("Invalid registration number");
   if (student.isRegistered)
     return res.status(400).send("This credential is already registered");
-  if (student.name !== req.body.name.trim())
-    return res.status(400).send("Invalid name provided");
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(req.body.password.trim(), salt);
+  if (student.username !== req.body.username.trim())
+    return res.status(400).send("Invalid username");
+  const hashedPassword = await hash(req.body.password.trim());
   student.isRegistered = true;
   student.password = hashedPassword;
   student.isStudent = true;
@@ -30,20 +32,17 @@ router.post("/register", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  const { error } = ValidateStudentAuth(req.body);
+  const { error } = validateStudentLogin(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
   const student = await StudentDetails.findOne({
-    registration_number: req.body.registration_number.trim(),
+    username: req.body.username.trim(),
   });
-  if (!student) return res.status(400).send("Invalid registration number");
+  if (!student) return res.status(400).send("Invalid username or password");
   if (!student.password)
     return res.status(400).send("You need to register first.");
-  const isValidPass = await bcrypt.compare(
-    req.body.password.trim(),
-    student.password
-  );
-  if (!isValidPass) return res.status(400).send("Invalid credentials");
+  const isValidPass = await unhash(req.body.password.trim(), student.password);
+  if (!isValidPass) return res.status(400).send("Invalid username or password");
   const token = student.generateStudentToken();
   res.header("x-auth-token", token).send(token);
 });
@@ -51,19 +50,20 @@ router.post("/login", async (req, res) => {
 router.post("/confirm-account", async (req, res) => {
   const studentUser = await StudentDetails.findOne({
     $and: [
-      { name: req.body.name.trim() },
-      { registration_number: req.body.registration_number.trim() },
+      { username: req.body.username.trim() },
+      { registrationID: req.body.registrationID.trim() },
     ],
   });
-  if (!studentUser) return res.status(404).send("Invalid username or reg. num");
+  if (!studentUser)
+    return res.status(404).send("Invalid username or registrationID");
   res.send(studentUser);
 });
 
 router.post("/reset-password", async (req, res) => {
   const user = await StudentDetails.findOne({
-    registration_number: req.body.registration_number.trim(),
-  });
-  if (!user) return res.status(404).send("invalid reg. number");
+    username: req.body.username.trim(),
+    });
+  if (!user) return res.status(404).send("invalid username");
   const salt = await bcrypt.genSalt(10);
   const newHashedPassword = await bcrypt.hash(req.body.password.trim(), salt);
   user.password = newHashedPassword;

@@ -8,11 +8,15 @@ const assignmentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  aMessage: {
+  homeworkURL: {
+    type: String,
+    required: true
+  },
+  className: {
     type: String,
     required: true,
   },
-  className: {
+  name: {
     type: String,
     required: true,
   },
@@ -24,7 +28,7 @@ const assignmentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  teacherID: {
+  registrationID: {
     type: String,
     required: true,
   },
@@ -48,7 +52,8 @@ const assignment = new mongoose.model("assignment", assignmentSchema);
 function validateAssignment(assign) {
   const schema = Joi.object({
     title: Joi.string().min(3).max(18).required(),
-    aMessage: Joi.string().required(),
+    homeworkURL: Joi.string().required(),
+    name: Joi.string().required(),
     className: Joi.string().required(),
     toBeSubmittedOn: Joi.string().required(),
   });

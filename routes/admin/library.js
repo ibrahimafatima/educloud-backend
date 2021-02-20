@@ -11,16 +11,16 @@ router.post("/", [isAuth, isAdmin], async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message);
   const book = await Library.findOne({
     $and: [
-      { bookTitle: req.body.bookTitle },
-      { author: req.body.author },
+      { bookTitle: req.body.bookTitle.toUpperCase() },
+      { author: req.body.author.toUpperCase() },
       { schoolSecretKey: req.adminToken.schoolSecretKey },
     ],
   });
 
   if (book) return res.status(400).send("This book is already added");
   const addBook = new Library({
-    bookTitle: req.body.bookTitle,
-    author: req.body.author,
+    bookTitle: req.body.bookTitle.toUpperCase(),
+    author: req.body.author.toUpperCase(),
     totalQty: req.body.totalQty,
     addedBy: req.adminToken.username,
     schoolSecretKey: req.adminToken.schoolSecretKey,
@@ -37,23 +37,23 @@ router.get("/", [isAuth], async (req, res) => {
   res.send(allBook);
 });
 
-router.get("/get/:id", [isAuth], async (req, res) => {
-  const oneBook = await Library.findById(req.params.id);
-  if (!oneBook) return res.status(404).send("Book not found");
-  res.send(oneBook);
-});
+// router.get("/get/:id", [isAuth], async (req, res) => {
+//   const oneBook = await Library.findById(req.params.id);
+//   if (!oneBook) return res.status(404).send("Book not found");
+//   res.send(oneBook);
+// });
 
 router.put("/update/:id", [isAuth, isAdmin], async (req, res) => {
   const { error } = ValidateLibrary(req.body);
   if (error) return res.status(400).send(error.details[0].message);
   const book = await Library.findById(req.params.id);
 
-  if (!book) return res.status(400).send("This book is cannot be updated");
+  if (!book) return res.status(400).send("This book cannot be updated");
   const updateBook = await Library.findByIdAndUpdate(
     req.params.id,
     {
-      bookTitle: req.body.bookTitle,
-      author: req.body.author,
+      bookTitle: req.body.bookTitle.toUpperCase(),
+      author: req.body.author.toUpperCase(),
       totalQty: req.body.totalQty,
     },
     { new: true }

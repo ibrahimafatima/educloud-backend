@@ -3,31 +3,32 @@ const mongoose = require("mongoose");
 mongoose.set("useFindAndModify", false);
 const isAuth = require("../../middleware/isAuth");
 const isAdmin = require("../../middleware/isAdmin");
-const { level, validateLevel } = require("../../model/admin/level");
+const {
+  SchoolClasses,
+  validateSchoolClasse,
+} = require("../../model/admin/school_classes");
 
 const router = express.Router();
 
 router.post("/", [isAuth, isAdmin], async (req, res) => {
-  const { error } = validateLevel(req.body);
+  const { error } = validateSchoolClasse(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const newLevel = new level({
-    level: req.body.level,
+  const newClasse = new SchoolClasses({
+    classe: req.body.classe,
     schoolName: req.adminToken.schoolName,
     schoolSecretKey: req.adminToken.schoolSecretKey,
   });
-  const result = await newLevel.save();
+  const result = await newClasse.save();
   return res.send(result);
 });
 
 router.get("/", isAuth, async (req, res) => {
-  const levels = await level
-    .find({
-      schoolSecretKey: req.adminToken.schoolSecretKey,
-    })
-    .sort("level");
-  if (!levels) return res.status(400).send("Error, no level found...");
-  res.send(levels);
+  const classes = await SchoolClasses.find({
+    schoolSecretKey: req.adminToken.schoolSecretKey,
+  }).sort("classe");
+  if (!classes) return res.status(400).send("Error, no class found...");
+  res.send(classes);
 });
 
 module.exports = router;

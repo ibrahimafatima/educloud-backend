@@ -6,26 +6,21 @@ Joi.objectId = require("joi-objectid")(Joi);
 const examSchema = new mongoose.Schema({
   className: {
     type: String,
-    minlength: 3,
-    maxlength: 8,
     required: true,
   },
   subject: {
     type: String,
-    maxlength: 50,
     required: true,
   },
-  exam_name: {
+  examName: {
     type: String,
-    minlength: 3,
-    maxlength: 50,
     required: true,
   },
-  schedule_date: {
+  scheduledDate: {
     type: Date,
     required: true,
   },
-  schedule_time: {
+  scheduledTime: {
     type: String,
     required: true,
   },
@@ -33,11 +28,11 @@ const examSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  post_date: {
+  postDate: {
     type: Date,
     default: new Date(),
   },
-  teacherID: {
+  teacherRegID: {
     type: String,
     required: true,
   },
@@ -63,9 +58,9 @@ const examSchema = new mongoose.Schema({
 function validateExams(exam) {
   const schema = Joi.object({
     className: Joi.string().min(3).max(8).required(),
-    exam_name: Joi.string().min(3).max(20).required(),
-    schedule_date: Joi.date().required(),
-    schedule_time: Joi.string().required(),
+    examName: Joi.string().min(3).max(20).required(),
+    scheduledDate: Joi.date().required(),
+    scheduledTime: Joi.string().required(),
     duration: Joi.string().required(),
     subject: Joi.string().max(50).required(),
   });

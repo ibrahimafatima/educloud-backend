@@ -1,13 +1,12 @@
 const express = require("express");
 const isAuth = require("../../middleware/isAuth");
 const { Exams } = require("../../model/exams/exams");
+const transporter = require("../../utilities/mail_transport");
 const isTeacher = require("../../middleware/isTeacher");
-const { StudentDetails } = require("../../model/students/students");
+const { StudentDetails } = require("../../model/students/students_managment");
 const { Mark, ValidateMark } = require("../../model/teachers/mark");
 
 const router = express.Router();
-
-//NAME IN THE BODY WAS SUBJECT CHANGED BECAUSE OF SELECT
 
 router.post("/:id", [isAuth, isTeacher], async (req, res) => {
   const { error } = ValidateMark(req.body);
@@ -15,7 +14,7 @@ router.post("/:id", [isAuth, isTeacher], async (req, res) => {
 
   const student = await StudentDetails.findOne({
     $and: [
-      { registration_number: req.params.id },
+      { registrationID: req.params.id },
       { schoolSecretKey: req.adminToken.schoolSecretKey },
     ],
   });
@@ -24,8 +23,8 @@ router.post("/:id", [isAuth, isTeacher], async (req, res) => {
 
   const exam = await Exams.findOne({
     $and: [
-      { subject: req.body.name },
-      { exam_name: req.body.exam_name },
+      { subject: req.body.name.toUpperCase() },
+      { examName: req.body.examName },
       { schoolSecretKey: req.adminToken.schoolSecretKey },
     ],
   });
@@ -36,25 +35,42 @@ router.post("/:id", [isAuth, isTeacher], async (req, res) => {
       .send("Make sure you select the right exam name and subject");
 
   const mark = new Mark({
-    registration_number: req.params.id,
-    student_name: student.name,
-    name: req.body.name,
+    registrationID: req.params.id,
+    studentName: student.username,
+    name: req.body.name.toUpperCase(),
     mark: req.body.mark,
     grade: req.body.grade,
     remark: req.body.remark,
-    exam_name: req.body.exam_name,
+    examName: req.body.examName,
     schoolSecretKey: req.adminToken.schoolSecretKey,
   });
   const result = await mark.save();
+console.log(student.email)
+    if(student.email !== "Not Specified") {
+      var mailOptions = {
+        from: 'edukloud@gmail.com',
+        to: student.email,
+        subject: `Edukloud - Your ${req.body.name.toUpperCase()} mark is in.`,
+        html: `<h3>Your ${req.body.name.toUpperCase()} teacher has posted your exam Mark.</h3><br/><br/><h4>Head Over to <a href="www.google.com">Edukloud</a> to view your mark.</h4><br/><br/><span><b>Good luck!</b></span><br/><br/><span>Edukloud, Africa's education on a single cloud.</span>`
+    
+      };
+      
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) 
+          console.log(error);
+        else 
+          console.log('Email sent: ' + info.response);
+      });
+    }
+
   res.send(result);
 });
 
-//MODIFICATION MADE HERE_ _ _ _ _
 router.get("/get/:id", [isAuth], async (req, res) => {
   const marks = await Mark.find({
     $and: [
       { status: "New" },
-      { registration_number: req.params.id },
+      { registrationID: req.params.id },
       { schoolSecretKey: req.adminToken.schoolSecretKey },
     ],
   });
@@ -67,12 +83,7 @@ router.get("/mark/:id", [isAuth], async (req, res) => {
   if (!mark) return res.status(404).send("Not found");
   res
     .send(mark)
-    .select([
-      "-_id",
-      "-registration_number",
-      "-schoolSecretKey",
-      "-student_name",
-    ]);
+    .select(["-_id", "-registrationID", "-schoolSecretKey", "-student_name"]);
 });
 
 router.put("/update/:id", [isAuth, isTeacher], async (req, res) => {

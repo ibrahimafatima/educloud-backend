@@ -1,29 +1,29 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
+const { hash, unhash } = require("../../utilities/hashed");
 const {
   TeacherDetails,
   ValidateTeacherAuth,
-} = require("../../model/teachers/teachers");
+} = require("../../model/teachers/teachers_managment");
 
 const router = express.Router();
 
-//-------TEACHER RGISTER SEND ALREADY IN USE IF TEAHCER IS REGISTERED
+//TEACHER RGISTER SEND ALREADY IN USE IF TEAHCER IS REGISTERED
 router.post("/register", async (req, res) => {
   const { error } = ValidateTeacherAuth(req.body);
   if (error) return res.status(400).send(error.details[0].message);
-  let teacher = await TeacherDetails.findOne({
-    teacherID: req.body.teacherID.trim(),
+
+  const teacher = await TeacherDetails.findOne({
+    $and: [
+      { username: req.body.username.trim() },
+      { registrationID: req.body.registrationID.trim() },
+    ],
   });
   if (!teacher) return res.status(400).send("Invalid teacher ID or username");
+
   if (teacher.password)
     return res.status(400).send("Teacher already registered");
 
-  teacher = await TeacherDetails.findOne({
-    username: req.body.username.trim(),
-  });
-  if (!teacher) return res.status(400).send("Invalid teacher ID or username");
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(req.body.password.trim(), salt);
+  const hashedPassword = await hash(req.body.password.trim());
   teacher.isTeacher = true;
   teacher.password = hashedPassword;
   await teacher.save();
@@ -38,27 +38,25 @@ router.post("/login", async (req, res) => {
   const teacher = await TeacherDetails.findOne({
     username: req.body.username.trim(),
   });
-  if (!teacher) return res.status(400).send("Invalid credentials");
-  if (req.body.teacherID.trim() !== teacher.teacherID)
-    return res.status(400).send("Invalid teacher ID");
+  if (!teacher) return res.status(400).send("Invalid username or password");
+
   if (!teacher.password)
     return res.status(400).send("You need to register first.");
-  const password = await bcrypt.compare(
-    req.body.password.trim(),
-    teacher.password
-  );
-  if (!password) return res.status(400).send("Invalid credentials");
+  const password = await unhash(req.body.password.trim(), teacher.password);
+  if (!password) return res.status(400).send("Invalid username or password");
   const token = teacher.generateTeacherAuthToken();
   res.header("x-auth-token", token).send(token);
 });
 
 router.post("/confirm-account", async (req, res) => {
   const teacherUser = await TeacherDetails.findOne({
-    username: req.body.username.trim(),
+    $and: [
+      { username: req.body.username.trim() },
+      { registrationID: req.body.regi }
+    ]
   });
-  if (!teacherUser) return res.status(404).send("Invalid username");
-  if (teacherUser.teacherID !== req.body.teacherID.trim())
-    return res.status(404).send("Invalid teacherID.");
+  if (!teacherUser) return res.status(404).send("Invalid username or registration ID");
+
   res.send(teacherUser);
 });
 

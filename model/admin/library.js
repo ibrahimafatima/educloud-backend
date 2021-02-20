@@ -6,44 +6,37 @@ Joi.objectId = require("joi-objectid")(Joi);
 const librarySchema = new mongoose.Schema({
   bookTitle: {
     type: String,
-    required: true
+    required: true,
   },
   author: {
     type: String,
-    required: true
+    required: true,
   },
   totalQty: {
-    type: Number
-  },
-  availableQty: {
-    type: Number
+    type: Number,
   },
   updatedOn: {
     type: Date,
-    default: new Date()
+    default: new Date(),
   },
   addedBy: {
     type: String,
-    required: true
+    required: true,
   },
   schoolSecretKey: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 });
 
 const Library = mongoose.model("library", librarySchema);
 
 function validateLibrary(library) {
   const schema = Joi.object({
-    bookTitle: Joi.string()
-      .max(20)
-      .required(),
-    author: Joi.string()
-      .max(20)
-      .required(),
+    bookTitle: Joi.string().max(20).required(),
+    author: Joi.string().max(20).required(),
     totalQty: Joi.number().min(0),
-    availableQty: Joi.number().min(0)
+    availableQty: Joi.number().min(0),
   });
   return schema.validate(library);
 }

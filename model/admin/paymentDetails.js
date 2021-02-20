@@ -4,11 +4,11 @@ const Joi = require("@hapi/joi");
 Joi.objectId = require("joi-objectid")(Joi);
 
 const paymentDetails = new mongoose.Schema({
-  registration_number: {
+  registrationID: {
     type: String,
     required: true,
   },
-  class_name: {
+  className: {
     type: String,
     required: true,
   },
@@ -37,7 +37,7 @@ const paymentDetails = new mongoose.Schema({
 
 function validatePaymentDetails(payment) {
   const schema = Joi.object({
-    registration_number: Joi.string().required(),
+    registrationID: Joi.string().required(),
     amountPaid: Joi.string().required(),
   });
   return schema.validate(payment);

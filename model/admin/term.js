@@ -17,7 +17,7 @@ const termSchema = new mongoose.Schema({
   },
 });
 
-const terms = mongoose.model("terms", termSchema);
+const terms = mongoose.model("school_term", termSchema);
 
 function validateTerm(school_term) {
   const schema = Joi.object({

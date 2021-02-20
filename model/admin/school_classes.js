@@ -17,14 +17,14 @@ const schoolClassSchema = new mongoose.Schema({
   },
 });
 
-const school_classe = mongoose.model("school_classe", schoolClassSchema);
+const schoolClasses = mongoose.model("school_classes", schoolClassSchema);
 
-function validateSchoolClasse(school_classe) {
+function validateSchoolClasse(schoolClasses) {
   const schema = Joi.object({
     classe: Joi.string().max(25).required(),
   });
-  return schema.validate(school_classe);
+  return schema.validate(schoolClasses);
 }
 
 module.exports.validateSchoolClasse = validateSchoolClasse;
-module.exports.school_classe = school_classe;
+module.exports.SchoolClasses = schoolClasses;

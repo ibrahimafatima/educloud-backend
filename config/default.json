@@ -1,4 +1,7 @@
 {
   "private_key": "edu_private_key",
-  "db": "mongodb://localhost/educloud"
+  "db": "mongodb://localhost/educloud",
+  "mail_password": "vvzxwwomrumhqwvm",
+  "flutter_wave_public_key": "FLWPUBK_TEST-c02d5fa446b13f5ac8ce4b17538c3820-X",
+  "flutter_wave_secret_key": "FLWSECK_TEST-da8982749940be340f6821198f98b581-X"
 }

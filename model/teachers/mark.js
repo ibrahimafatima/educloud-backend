@@ -4,23 +4,19 @@ const Joi = require("@hapi/joi");
 Joi.objectId = require("joi-objectid")(Joi);
 
 const markSchema = new mongoose.Schema({
-  registration_number: {
+  registrationID: {
     type: String,
     required: true,
   },
-  student_name: {
+  studentName: {
     type: String,
-    minlength: 3,
-    maxlength: 25,
   },
   name: {
     type: String,
     required: true,
-    maxlength: 30,
   },
-  exam_name: {
+  examName: {
     type: String,
-    maxlength: 25,
     required: true,
   },
   mark: {
@@ -29,12 +25,9 @@ const markSchema = new mongoose.Schema({
   },
   grade: {
     type: String,
-    maxlength: 20,
   },
   remark: {
     type: String,
-    minlength: 3,
-    maxlength: 255,
   },
   schoolSecretKey: {
     type: String,
@@ -53,7 +46,7 @@ function validateMark(mark) {
     mark: Joi.number().required(),
     grade: Joi.string().max(20),
     remark: Joi.string().min(3).max(255),
-    exam_name: Joi.string().max(25).required(),
+    examName: Joi.string().max(25).required(),
   });
   return schema.validate(mark);
 }

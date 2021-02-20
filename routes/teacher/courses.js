@@ -1,13 +1,12 @@
 const express = require("express");
 //const Fawn = require("fawn");
-const mongoose = require("mongoose");
 const isAuth = require("../../middleware/isAuth");
 const isAdmin = require("../../middleware/isAdmin");
 const { Exams } = require("../../model/exams/exams");
 const isTeacher = require("../../middleware/isTeacher");
-const { AddClass } = require("../../model/admin/classes");
+const { ClassesDetails } = require("../../model/admin/classes_managment");
 const { Timetable } = require("../../model/teachers/timetable");
-const { TeacherDetails } = require("../../model/teachers/teachers");
+const { TeacherDetails } = require("../../model/teachers/teachers_managment");
 const {
   TeachersCourse,
   ValidateCourseAdded,
@@ -21,39 +20,36 @@ router.post("/", [isAuth, isTeacher], async (req, res) => {
   const { error } = ValidateCourseAdded(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const class_name = await AddClass.findOne({
+  const classByName = await ClassesDetails.findOne({
     $and: [
       { className: req.body.className },
       { schoolSecretKey: req.adminToken.schoolSecretKey },
     ],
   });
-  if (!class_name) return res.status(400).send("Invalid class name");
+  if (!classByName) return res.status(400).send("Invalid class name");
 
   const course = await TeachersCourse.findOne({
     $and: [
       { schoolSecretKey: req.adminToken.schoolSecretKey },
-      { teacherID: req.adminToken.teacherID },
       { className: req.body.className },
       { name: req.body.name },
     ],
   });
 
   if (course)
-    return res
-      .status(400)
-      .send(`You already added ${req.body.name} in ${req.body.className}.`);
+    return res.status(400).send(`${req.body.name} in ${req.body.className}.`);
 
-  const teacher_course = new TeachersCourse({
-    name: req.body.name,
+  const newCourse = new TeachersCourse({
+    name: req.body.name.toUpperCase(),
     className: req.body.className,
-    teacherID: req.adminToken.teacherID,
+    registrationID: req.adminToken.registrationID,
     schoolSecretKey: req.adminToken.schoolSecretKey,
   });
 
   //increase teacher number of subject by 1
   let teacher = await TeacherDetails.findOne({
     $and: [
-      { teacherID: req.adminToken.teacherID },
+      { registrationID: req.adminToken.registrationID },
       { schoolSecretKey: req.adminToken.schoolSecretKey },
     ],
   });
@@ -63,17 +59,17 @@ router.post("/", [isAuth, isTeacher], async (req, res) => {
   teacher.numberOfSubject++;
   await teacher.save();
 
-  const result = await teacher_course.save();
+  const result = await newCourse.save();
   res.send(result);
 });
 
-//FOR THE GET ENDPOINT HERE SHOULD NOT ONLY GET BASE ON TEACHERID
+//FOR THE GET ENDPOINT HERE SHOULD NOT ONLY GET BASE ON registrationID
 //BUT ALSO ON SCHOOL SECRTE KEY
 
 router.get("/", [isAuth, isTeacher], async (req, res) => {
   const courses = await TeachersCourse.find({
     $and: [
-      { teacherID: req.adminToken.teacherID },
+      { registrationID: req.adminToken.registrationID },
       { schoolSecretKey: req.adminToken.schoolSecretKey },
     ],
   }).select(["-__v"]);
@@ -95,10 +91,10 @@ router.get("/byID/:id", [isAuth], async (req, res) => {
   res.send(course);
 });
 
-router.get("/teacherID/:id", [isAuth], async (req, res) => {
+router.get("/registrationID/:id", [isAuth], async (req, res) => {
   const course = await TeachersCourse.find({
     $and: [
-      { teacherID: req.params.id },
+      { registrationID: req.params.id },
       { schoolSecretKey: req.adminToken.schoolSecretKey },
     ],
   }).select(["-__v"]);
@@ -115,8 +111,8 @@ router.put("/update/:id", [isAuth, isTeacher], async (req, res) => {
   const exams = await Exams.findOne({
     $and: [
       { className: courses.className },
-      { teacherID: courses.teacherID },
-      { subject: courses.name },
+      { registrationID: courses.registrationID },
+      { subject: courses.name.toUpperCase() },
     ],
   });
   if (exams)
@@ -130,7 +126,7 @@ router.put("/update/:id", [isAuth, isTeacher], async (req, res) => {
     $and: [
       { name: courses.name },
       { className: courses.className },
-      { teacherID: courses.teacherID },
+      { registrationID: courses.registrationID },
     ],
   });
   if (timetable)
@@ -159,7 +155,7 @@ router.delete("/delete/:id", [isAuth, isTeacher], async (req, res) => {
   const exams = await Exams.findOne({
     $and: [
       { className: courses.className },
-      { teacherID: courses.teacherID },
+      { registrationID: courses.registrationID },
       { subject: courses.name },
     ],
   });
@@ -174,7 +170,7 @@ router.delete("/delete/:id", [isAuth, isTeacher], async (req, res) => {
     $and: [
       { name: courses.name },
       { className: courses.className },
-      { teacherID: courses.teacherID },
+      { registrationID: courses.registrationID },
     ],
   });
   if (timetable)
@@ -186,7 +182,7 @@ router.delete("/delete/:id", [isAuth, isTeacher], async (req, res) => {
 
   let teacher = await TeacherDetails.findOne({
     $and: [
-      { teacherID: req.adminToken.teacherID },
+      { registrationID: req.adminToken.registrationID },
       { schoolSecretKey: req.adminToken.schoolSecretKey },
     ],
   });

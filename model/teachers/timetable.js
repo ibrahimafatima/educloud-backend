@@ -6,61 +6,47 @@ Joi.objectId = require("joi-objectid")(Joi);
 const timetableSchema = new mongoose.Schema({
   className: {
     type: String,
-    required: true
+    required: true,
   },
   name: {
     type: String,
-    required: true
+    required: true,
   },
   day: {
     type: String,
-    required: true
-  },
-  dayNum: {
-    type: Number
+    required: true,
   },
   startTime: {
     type: String,
-    required: true
+    required: true,
   },
   endTime: {
     type: String,
-    required: true
+    required: true,
   },
-  teacherID: {
+  registrationID: {
     type: String,
-    required: true
+    required: true,
   },
-  teacherUsername: {
+  username: {
     type: String,
-    required: true
+    required: true,
   },
   schoolSecretKey: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 });
 
 const Timetable = mongoose.model("timetable", timetableSchema);
 
 function validateTimetable(table) {
   const schema = Joi.object({
-    className: Joi.string()
-      .max(15)
-      .required(),
-    name: Joi.string()
-      .max(20)
-      .required(),
-    day: Joi.string()
-      .min(3)
-      .max(12)
-      .required(),
-    startTime: Joi.string()
-      .max(10)
-      .required(),
-    endTime: Joi.string()
-      .max(10)
-      .required()
+    className: Joi.string().max(15).required(),
+    name: Joi.string().max(20).required(),
+    day: Joi.string().min(3).max(12).required(),
+    startTime: Joi.string().max(10).required(),
+    endTime: Joi.string().max(10).required(),
   });
   return schema.validate(table);
 }

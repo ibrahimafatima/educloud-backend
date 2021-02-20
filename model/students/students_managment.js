@@ -6,46 +6,37 @@ Joi.objectId = require("joi-objectid")(Joi);
 const config = require("config");
 
 const studentSchema = new mongoose.Schema({
-  registration_number: {
+  registrationID: {
     type: String,
     required: true,
-    unique: true,
   },
   schoolSecretKey: {
     type: String,
     required: true,
   },
-  class_name: {
+  className: {
     type: String,
     required: true,
-    minlength: 3,
-    maxlength: 8,
   },
   password: {
     type: String,
-    minlength: 8,
   },
-  name: {
+  username: {
     type: String,
-    minlength: 3,
-    maxlength: 25,
+    unique: true,
   },
   term: {
     type: String,
-    minlength: 3,
-    maxlength: 20,
   },
   gender: { type: String, default: "Not Specified" },
-  father_name: { type: String, default: "Not Specified" },
-  mother_name: { type: String, default: "Not Specified" },
+  fatherName: { type: String, default: "Not Specified" },
+  motherName: { type: String, default: "Not Specified" },
   dob: { type: Date, default: "01/01/1900" },
   email: {
     type: String,
-    minlength: 8,
-    maxlength: 255,
     default: "Not Specified",
   },
-  fee_paid: {
+  feePaid: {
     type: Number,
     default: 0,
   },
@@ -55,10 +46,8 @@ const studentSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    maxlength: 15,
     default: "Not Specified",
   },
-  isRegistered: { type: Boolean },
   role: {
     type: String,
     required: true,
@@ -67,45 +56,58 @@ const studentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  isStudent: { type: Boolean },
+  profileURL: {
+    type: String,
+    default: "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
+  },
+  isStudent: { type: Boolean, default: false },
+  country: {
+    type: String,
+    required: true
+  },
+  pack: {
+    type: String,
+    required: true
+  }
 });
 
-studentSchema.methods.generateStudentToken = function () {
+studentSchema.methods.generateAuthToken = function () {
   const token = jwt.sign(
     {
       _id: this._id,
-      registration_number: this.registration_number,
+      pack: this.pack,
+      registrationID: this.registrationID,
       schoolSecretKey: this.schoolSecretKey,
-      username: this.name,
+      username: this.username,
       role: this.role,
+      country: this.country,
       gender: this.gender,
       schoolName: this.schoolName,
-      class_name: this.class_name,
+      className: this.className,
       isStudent: this.isStudent,
+      profileURL: this.profileURL
     },
     config.get("private_key")
   );
   return token;
 };
 
-const studentDetails = mongoose.model("students", studentSchema);
+const StudentDetails = mongoose.model("students", studentSchema);
 
 function validateStudentDetails(addStudent) {
   const schema = Joi.object({
-    registration_number: Joi.string().required(),
-    name: Joi.string().min(3).max(25).required(),
-    class_name: Joi.string().lowercase().min(3).max(8).required(),
+    registrationID: Joi.string().required(),
+    username: Joi.string().min(3).max(15).required(),
+    className: Joi.string().lowercase().min(3).max(12).required(),
     term: Joi.string().required().min(3).max(20).required(),
   });
   return schema.validate(addStudent);
 }
 
-function validateStudentAuth(student) {
+function validateStudentLogin(student) {
   const schema = Joi.object({
-    registration_number: Joi.string().required(),
-    name: Joi.string().min(3).max(12),
-    class_name: Joi.string().min(3).max(8),
-    password: Joi.string().min(8).required(),
+    username: Joi.string().min(3).max(15).required(),
+    password: Joi.string().min(8).max(20).required(),
     password_again: Joi.ref("password"),
   });
   return schema.validate(student);
@@ -113,8 +115,8 @@ function validateStudentAuth(student) {
 
 function validateStudentUpdate(studentUpdate) {
   const schema = Joi.object({
-    father_name: Joi.string().min(3).max(18),
-    mother_name: Joi.string().min(3).max(18),
+    fatherName: Joi.string().min(3).max(20),
+    motherName: Joi.string().min(3).max(20),
     gender: Joi.string().min(3).max(15),
     email: Joi.string().min(5).max(255).email(),
     dob: Joi.string(),
@@ -124,7 +126,7 @@ function validateStudentUpdate(studentUpdate) {
   return schema.validate(studentUpdate);
 }
 
-module.exports.ValidateStudentDetails = validateStudentDetails;
-module.exports.ValidateStudentAuth = validateStudentAuth;
-module.exports.ValidateStudentUpdate = validateStudentUpdate;
-module.exports.StudentDetails = studentDetails;
+module.exports.validateStudentDetails = validateStudentDetails;
+module.exports.validateStudentLogin = validateStudentLogin;
+module.exports.validateStudentUpdate = validateStudentUpdate;
+module.exports.StudentDetails = StudentDetails;
