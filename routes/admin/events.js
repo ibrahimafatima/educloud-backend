@@ -32,7 +32,7 @@ router.get("/", [isAuth], async (req, res) => {
     schoolSecretKey: req.adminToken.schoolSecretKey,
   })
     .limit(6)
-    .sort("-post_date");
+    .sort("-postDate");
   if (!event) return res.status(400).send("Error while getting event...");
   res.send(event);
 });
@@ -40,13 +40,13 @@ router.get("/", [isAuth], async (req, res) => {
 router.get("/all-events", [isAuth], async (req, res) => {
   const event = await Event.find({
     schoolSecretKey: req.adminToken.schoolSecretKey,
-  }).sort("-post_date");
+  }).sort("-postDate");
   if (!event) return res.status(400).send("Error while getting event...");
   res.send(event);
 });
 
 // router.get("/all-events", async (req, res) => {
-//   const event = await Event.find().limit(5).sort("-post_date");
+//   const event = await Event.find().limit(5).sort("-postDate");
 //   if (!event) return res.status(400).send("Error while getting event...");
 //   res.send(event);
 // });
@@ -76,32 +76,28 @@ router.delete("/delete/:id", [isAuth, isAdmin], async (req, res) => {
   res.send(deletedEvent);
 });
 
-router.post('/mail', isAuth, async (req, res) => {
-
+router.post("/mail", isAuth, async (req, res) => {
   const students = await StudentDetails.find({
-    $and : [
-      {schoolSecretKey: req.adminToken.schoolSecretKey},
-      {email: {$ne: "Not Specified"}}
-    ]
-  })
+    $and: [
+      { schoolSecretKey: req.adminToken.schoolSecretKey },
+      { email: { $ne: "Not Specified" } },
+    ],
+  });
 
   students.map((s) => {
     var mailOptions = {
-      from: 'edukloud@gmail.com',
+      from: "edukloud@gmail.com",
       to: s.email,
       subject: `Edukloud - ${req.adminToken.schoolName}`,
-      html: `<h3>Upcoming Event For ${req.adminToken.schoolName}</h3><br/><hr/><span>${req.body.eventMessage}</span><br/><br/><hr/><span>Event date: <b>${req.body.eventDate}</b></span>`
-  
+      html: `<h3>Upcoming Event For ${req.adminToken.schoolName}</h3><br/><hr/><span>${req.body.eventMessage}</span><br/><br/><hr/><span>Event date: <b>${req.body.eventDate}</b></span>`,
     };
-    
-    transporter.sendMail(mailOptions, function(error, info){
-      if (error) 
-        console.log(error);
-      else 
-        console.log('Email sent: ' + info.response);
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) console.log(error);
+      else console.log("Email sent: " + info.response);
     });
-  })
-  res.send("Send")
+  });
+  res.send("Send");
 });
 
 module.exports = router;

@@ -37,11 +37,11 @@ router.get("/", [isAuth], async (req, res) => {
   res.send(allBook);
 });
 
-// router.get("/get/:id", [isAuth], async (req, res) => {
-//   const oneBook = await Library.findById(req.params.id);
-//   if (!oneBook) return res.status(404).send("Book not found");
-//   res.send(oneBook);
-// });
+router.get("/get/:id", [isAuth], async (req, res) => {
+  const oneBook = await Library.findById(req.params.id);
+  if (!oneBook) return res.status(404).send("Book not found");
+  res.send(oneBook);
+});
 
 router.put("/update/:id", [isAuth, isAdmin], async (req, res) => {
   const { error } = ValidateLibrary(req.body);

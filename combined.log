@@ -1,3 +1,16 @@
 {"message":"Connected to mongodb://localhost/educloud","level":"info"}
 {"errors":{"classe":{"message":"Path `classe` is required.","name":"ValidatorError","properties":{"message":"Path `classe` is required.","type":"required","path":"classe"},"kind":"required","path":"classe"}},"_message":"discussions validation failed","message":"discussions validation failed: classe: Path `classe` is required.discussions validation failed: classe: Path `classe` is required.","name":"ValidationError","level":"error","stack":"ValidationError: discussions validation failed: classe: Path `classe` is required.\n    at new ValidationError (E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\error\\validation.js:31:11)\n    at model.Document.invalidate (E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\document.js:2481:32)\n    at p.doValidate.skipSchemaValidators (E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\document.js:2330:17)\n    at E:\\Set Up\\cmder\\educloud\\node_modules\\mongoose\\lib\\schematype.js:1064:9\n    at _combinedTickCallback (internal/process/next_tick.js:132:7)\n    at process._tickCallback (internal/process/next_tick.js:181:9)"}
 {"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"errno":-4058,"code":"ENOENT","syscall":"open","path":"E:\\Set Up\\cmder\\services\\edu.json","level":"error","message":"ENOENT: no such file or directory, open 'E:\\Set Up\\cmder\\services\\edu.json'ENOENT: no such file or directory, open 'E:\\Set Up\\cmder\\services\\edu.json'","stack":"Error: ENOENT: no such file or directory, open 'E:\\Set Up\\cmder\\services\\edu.json'"}
+{"errno":-4058,"code":"ENOENT","syscall":"open","path":"E:\\Set Up\\cmder\\services\\edu.json","level":"error","message":"ENOENT: no such file or directory, open 'E:\\Set Up\\cmder\\services\\edu.json'ENOENT: no such file or directory, open 'E:\\Set Up\\cmder\\services\\edu.json'","stack":"Error: ENOENT: no such file or directory, open 'E:\\Set Up\\cmder\\services\\edu.json'"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
+{"message":"Connected to mongodb://localhost/educloud","level":"info"}
